@@ -24,6 +24,6 @@
 
     <script src="{{ request.url_for('static', path='js/app.js') }}" defer></script>
     <script src="{{ request.url_for('static', path='js/tema.js') }}" defer></script>
+    {% block scripts %}{% endblock %}
   </body>
 </html>
-

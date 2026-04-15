@@ -2,11 +2,27 @@
 
 {% block content %}
 <section class="page-section">
-  <div class="card">
+  <div class="card login-card">
     <h1>Ingreso a Agenda Abril</h1>
-    <p>Placeholder de login con imagen estilo Corporate Memphis.</p>
-    <p>La validacion por RUT modulo 11 se implementara en una etapa posterior.</p>
+    <p>Esta etapa valida el RUT completo y verifica si existe en la tabla <code>usuarios</code>.</p>
+
+    <form id="login-form" class="login-form" novalidate>
+      <label for="rut">RUT completo</label>
+      <input
+        id="rut"
+        name="rut"
+        type="text"
+        placeholder="12.345.678-5"
+        autocomplete="username"
+      >
+      <button type="submit">Validar ingreso</button>
+    </form>
+
+    <div id="login-result" class="login-result" aria-live="polite"></div>
   </div>
 </section>
 {% endblock %}
 
+{% block scripts %}
+<script src="{{ request.url_for('static', path='js/auth/login.js') }}" defer></script>
+{% endblock %}

@@ -72,3 +72,50 @@ body {
   box-shadow: var(--shadow);
 }
 
+.login-card {
+  max-width: 32rem;
+}
+
+.login-form {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.login-form label {
+  font-weight: 600;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.login-form button {
+  width: fit-content;
+  padding: 0.85rem 1.1rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-result {
+  min-height: 1.5rem;
+  margin-top: 1rem;
+  color: var(--muted);
+}
+
+.login-result[data-state="success"] {
+  color: #0f766e;
+}
+
+.login-result[data-state="error"] {
+  color: #b91c1c;
+}

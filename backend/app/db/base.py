@@ -1,8 +1,8 @@
-"""Declarative base compartida para modelos SQLAlchemy."""
+"""Registro central de modelos ORM para SQLAlchemy y Alembic."""
 
-from sqlalchemy.orm import DeclarativeBase
+from backend.app.db.base_class import Base
 
 
-class Base(DeclarativeBase):
-    """Base declarativa del proyecto."""
-
+from backend.modulos.roles.modelos import Rol  # noqa: E402,F401
+from backend.modulos.sesiones.modelos import Sesion  # noqa: E402,F401
+from backend.modulos.usuarios.modelos import Usuario  # noqa: E402,F401

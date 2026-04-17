@@ -36,7 +36,11 @@ class SqlAlchemyActividadRepository:
         return list(self._db.scalars(statement).all())
 
     def get_by_id(self, actividad_id: int) -> Actividad | None:
-        statement = select(Actividad).where(Actividad.id_actividad == actividad_id)
+        statement = (
+            select(Actividad)
+            .options(selectinload(Actividad.categoria), selectinload(Actividad.usuario))
+            .where(Actividad.id_actividad == actividad_id)
+        )
         return self._db.scalar(statement)
 
     def update_realizada(

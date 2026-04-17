@@ -7,9 +7,11 @@ from backend.modulos.actividades.esquemas.calendario import (
     CalendarioMonthCell,
     CalendarioWeekRow,
 )
+from backend.modulos.actividades.esquemas.detail import ActividadDetalleData
 
 __all__ = [
     "ActividadCalendarioData",
+    "ActividadDetalleData",
     "CalendarioAbrilData",
     "CalendarioDayBlock",
     "CalendarioMonthCell",

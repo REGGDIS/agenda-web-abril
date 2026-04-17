@@ -1,0 +1,100 @@
+{% extends "shared/templates/base.html" %}
+
+{% block content %}
+<section class="page-section activity-detail-page">
+  <div class="detail-header">
+    <a href="/calendario" class="detail-back-link">Volver al calendario</a>
+    <span class="detail-status-badge {{ 'done' if actividad.realizada else 'pending' }}">
+      {{ "Realizada" if actividad.realizada else "Pendiente" }}
+    </span>
+  </div>
+
+  <article class="detail-card card">
+    <div class="detail-hero">
+      <div>
+        <p class="eyebrow">Detalle de actividad</p>
+        <h1>
+          {% if actividad.emoji %}<span class="detail-emoji">{{ actividad.emoji }}</span>{% endif %}
+          {{ actividad.titulo }}
+        </h1>
+        <p class="detail-description">
+          {{ actividad.descripcion or "Sin descripcion registrada para esta actividad." }}
+        </p>
+      </div>
+      <div class="detail-highlight">
+        <span class="detail-highlight-label">Fecha</span>
+        <strong>{{ actividad.fecha_actividad.strftime("%d/%m/%Y") }}</strong>
+        <span>{{ actividad.hora_inicio.strftime("%H:%M") }} - {{ actividad.hora_fin.strftime("%H:%M") }}</span>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <section class="detail-section">
+        <h2>Programacion</h2>
+        <dl class="detail-list">
+          <div>
+            <dt>Fecha</dt>
+            <dd>{{ actividad.fecha_actividad.strftime("%d/%m/%Y") }}</dd>
+          </div>
+          <div>
+            <dt>Hora de inicio</dt>
+            <dd>{{ actividad.hora_inicio.strftime("%H:%M") }}</dd>
+          </div>
+          <div>
+            <dt>Hora de fin</dt>
+            <dd>{{ actividad.hora_fin.strftime("%H:%M") }}</dd>
+          </div>
+          <div>
+            <dt>Lugar</dt>
+            <dd>{{ actividad.lugar or "Sin lugar definido" }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="detail-section">
+        <h2>Clasificacion</h2>
+        <dl class="detail-list">
+          <div>
+            <dt>Estado</dt>
+            <dd>{{ "Realizada" if actividad.realizada else "Pendiente" }}</dd>
+          </div>
+          <div>
+            <dt>Categoria</dt>
+            <dd>{{ actividad.categoria_nombre or "Sin categoria" }}</dd>
+          </div>
+          <div>
+            <dt>Descripcion de categoria</dt>
+            <dd>{{ actividad.categoria_descripcion or "Sin descripcion de categoria" }}</dd>
+          </div>
+          <div>
+            <dt>Identificador</dt>
+            <dd>#{{ actividad.id_actividad }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="detail-section">
+        <h2>Responsable</h2>
+        <dl class="detail-list">
+          <div>
+            <dt>Usuario</dt>
+            <dd>{{ actividad.usuario_nombre or "Sin usuario asociado" }}</dd>
+          </div>
+          <div>
+            <dt>RUT</dt>
+            <dd>{{ actividad.usuario_rut or "Sin RUT disponible" }}</dd>
+          </div>
+          <div>
+            <dt>ID usuario</dt>
+            <dd>{{ actividad.id_usuario }}</dd>
+          </div>
+          <div>
+            <dt>Creada</dt>
+            <dd>{{ actividad.fecha_creacion.strftime("%d/%m/%Y %H:%M") }}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+  </article>
+</section>
+{% endblock %}

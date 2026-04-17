@@ -107,6 +107,14 @@
                   <span class="mini-category">{{ actividad.categoria_nombre or "Sin categoria" }}</span>
                   <span class="mini-state">{{ "OK" if actividad.realizada else "Pend." }}</span>
                 </div>
+                <div class="mini-activity-actions">
+                  <a
+                    class="mini-detail-link"
+                    href="/actividades/{{ actividad.id_actividad }}"
+                  >
+                    Ver detalle
+                  </a>
+                </div>
               </div>
               {% endfor %}
             </div>

@@ -425,6 +425,25 @@ body {
   font-weight: 700;
 }
 
+.mini-activity-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.45rem;
+}
+
+.mini-detail-link,
+.detail-back-link {
+  color: #9a3e31;
+  text-decoration: none;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.mini-detail-link:hover,
+.detail-back-link:hover {
+  text-decoration: underline;
+}
+
 .category-trabajo {
   background: linear-gradient(180deg, rgba(14, 116, 144, 0.07), #ffffff 75%);
 }
@@ -496,6 +515,123 @@ body {
   text-align: right;
 }
 
+.activity-detail-page {
+  max-width: 1040px;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.detail-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.detail-status-badge.pending {
+  background: rgba(185, 28, 28, 0.1);
+  color: #b91c1c;
+}
+
+.detail-status-badge.done {
+  background: rgba(15, 118, 110, 0.12);
+  color: #0f766e;
+}
+
+.detail-card {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.detail-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(220px, 0.75fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.detail-hero h1 {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+  line-height: 1.05;
+}
+
+.detail-emoji {
+  margin-right: 0.15rem;
+}
+
+.detail-description {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 62ch;
+}
+
+.detail-highlight {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: 1px solid rgba(239, 108, 87, 0.18);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(239, 108, 87, 0.12), rgba(239, 108, 87, 0.04));
+}
+
+.detail-highlight-label {
+  color: #9a3e31;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.detail-section {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 249, 252, 0.96));
+}
+
+.detail-section h2 {
+  margin: 0 0 0.9rem;
+  font-size: 1rem;
+}
+
+.detail-list {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+}
+
+.detail-list div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.detail-list dt {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.detail-list dd {
+  margin: 0;
+  line-height: 1.45;
+}
+
 .login-card {
   max-width: 32rem;
 }
@@ -552,6 +688,11 @@ body {
   .calendar-summary-band {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .detail-hero,
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
@@ -566,5 +707,10 @@ body {
 
   .calendar-footnote {
     text-align: left;
+  }
+
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

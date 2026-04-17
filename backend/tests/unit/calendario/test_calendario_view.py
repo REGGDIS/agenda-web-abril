@@ -77,6 +77,7 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "Trabajo" in response.text
     assert "Todas las actividades" in response.text
     assert "/calendario/actividades/1/realizada" in response.text
+    assert "/actividades/1" in response.text
     assert "Pendiente" in response.text
 
 

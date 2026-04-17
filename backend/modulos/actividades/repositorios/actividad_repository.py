@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, time
 
 from sqlalchemy import extract, select
 from sqlalchemy.orm import Session, selectinload
@@ -50,6 +50,39 @@ class SqlAlchemyActividadRepository:
         realizada: bool,
     ) -> Actividad:
         actividad.realizada = realizada
+        self._db.add(actividad)
+        self._db.commit()
+        self._db.refresh(actividad)
+        return actividad
+
+    def create(
+        self,
+        *,
+        titulo: str,
+        descripcion: str | None,
+        fecha_actividad: date,
+        hora_inicio: time,
+        hora_fin: time,
+        emoji: str | None,
+        realizada: bool,
+        lugar: str | None,
+        id_usuario: int,
+        id_categoria: int,
+        fecha_creacion: datetime,
+    ) -> Actividad:
+        actividad = Actividad(
+            titulo=titulo,
+            descripcion=descripcion,
+            fecha_actividad=fecha_actividad,
+            hora_inicio=hora_inicio,
+            hora_fin=hora_fin,
+            emoji=emoji,
+            realizada=realizada,
+            lugar=lugar,
+            id_usuario=id_usuario,
+            id_categoria=id_categoria,
+            fecha_creacion=fecha_creacion,
+        )
         self._db.add(actividad)
         self._db.commit()
         self._db.refresh(actividad)

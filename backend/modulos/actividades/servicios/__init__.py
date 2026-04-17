@@ -5,6 +5,14 @@ from backend.modulos.actividades.servicios.calendario_service import (
     ActividadCalendarService,
     get_actividad_calendar_service,
 )
+from backend.modulos.actividades.servicios.create_service import (
+    ActividadCreateCommand,
+    ActividadCreateFormQuery,
+    ActividadCreateService,
+    ActivityCreationPermissionDeniedError,
+    ActivityCreationValidationError,
+    get_actividad_create_service,
+)
 from backend.modulos.actividades.servicios.checklist_service import (
     ActividadChecklistCommand,
     ActividadChecklistService,
@@ -23,11 +31,17 @@ __all__ = [
     "ActividadCalendarService",
     "ActividadChecklistCommand",
     "ActividadChecklistService",
+    "ActividadCreateCommand",
+    "ActividadCreateFormQuery",
+    "ActividadCreateService",
     "ActividadDetailQuery",
     "ActividadDetailService",
+    "ActivityCreationPermissionDeniedError",
+    "ActivityCreationValidationError",
     "ActivityNotFoundError",
     "ActivityPermissionDeniedError",
     "get_actividad_calendar_service",
     "get_actividad_checklist_service",
+    "get_actividad_create_service",
     "get_actividad_detail_service",
 ]

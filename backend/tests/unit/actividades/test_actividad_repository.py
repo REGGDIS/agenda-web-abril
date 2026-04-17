@@ -92,6 +92,39 @@ def test_repository_update_realizada_persists_new_value():
         assert refreshed.realizada is True
 
 
+def test_repository_create_persists_new_activity():
+    engine = create_engine("sqlite:///:memory:", future=True)
+    Base.metadata.create_all(engine)
+
+    with Session(engine) as db:
+        _seed_calendar_entities(db)
+
+        repository = SqlAlchemyActividadRepository(db)
+        creada = repository.create(
+            titulo="Preparar entrega final",
+            descripcion="Organizar la demostracion de la agenda.",
+            fecha_actividad=date(2026, 4, 21),
+            hora_inicio=time(16, 0),
+            hora_fin=time(17, 15),
+            emoji="🗂️",
+            realizada=False,
+            lugar="Laboratorio",
+            id_usuario=2,
+            id_categoria=1,
+            fecha_creacion=datetime(2026, 4, 17, 12, 30, 0),
+        )
+
+        assert creada.id_actividad is not None
+        assert creada.titulo == "Preparar entrega final"
+
+        persisted = repository.get_by_id(creada.id_actividad)
+        assert persisted is not None
+        assert persisted.titulo == "Preparar entrega final"
+        assert persisted.fecha_actividad == date(2026, 4, 21)
+        assert persisted.categoria is not None
+        assert persisted.categoria.nombre_categoria == "Trabajo"
+
+
 def _seed_calendar_entities(db: Session) -> None:
     db.add_all(
         [

@@ -49,6 +49,10 @@ body {
   text-decoration: none;
 }
 
+.site-nav a:hover {
+  text-decoration: underline;
+}
+
 .subtitle {
   margin: 0.25rem 0 0;
   color: var(--muted);
@@ -109,6 +113,10 @@ body {
   line-height: 1.6;
 }
 
+.calendar-hero-actions {
+  margin-top: 1rem;
+}
+
 .calendar-context {
   display: flex;
   flex-direction: column;
@@ -156,6 +164,29 @@ body {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.85rem;
   margin-bottom: 1rem;
+}
+
+.action-feedback {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.action-feedback.success {
+  border-color: rgba(15, 118, 110, 0.2);
+  background: linear-gradient(180deg, rgba(15, 118, 110, 0.1), rgba(15, 118, 110, 0.03));
+}
+
+.action-feedback a {
+  color: #0f766e;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.action-feedback a:hover {
+  text-decoration: underline;
 }
 
 .summary-metric {
@@ -444,6 +475,36 @@ body {
   text-decoration: underline;
 }
 
+.primary-action,
+.secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.primary-action {
+  border: 0;
+  background: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(239, 108, 87, 0.24);
+}
+
+.secondary-action {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.primary-action:hover,
+.secondary-action:hover {
+  filter: brightness(0.98);
+}
+
 .category-trabajo {
   background: linear-gradient(180deg, rgba(14, 116, 144, 0.07), #ffffff 75%);
 }
@@ -517,6 +578,152 @@ body {
 
 .activity-detail-page {
   max-width: 1040px;
+}
+
+.activity-create-page {
+  max-width: 1100px;
+}
+
+.create-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.create-header h1 {
+  margin: 0 0 0.55rem;
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  line-height: 1.05;
+}
+
+.create-intro {
+  max-width: 65ch;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.create-card {
+  display: grid;
+  gap: 1.35rem;
+}
+
+.create-info-band {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.create-info-item {
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.95rem;
+  background: linear-gradient(180deg, rgba(239, 108, 87, 0.08), rgba(239, 108, 87, 0.03));
+}
+
+.create-info-item strong,
+.create-info-item span {
+  display: block;
+}
+
+.form-alert {
+  padding: 0.95rem 1rem;
+  border-radius: 0.9rem;
+  font-weight: 600;
+}
+
+.form-alert.error {
+  border: 1px solid rgba(185, 28, 28, 0.18);
+  background: rgba(185, 28, 28, 0.08);
+  color: #991b1b;
+}
+
+.activity-form {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.form-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.form-field-wide {
+  grid-column: 1 / -1;
+}
+
+.form-field span {
+  font-weight: 700;
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select,
+.readonly-field {
+  width: 100%;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 7.5rem;
+}
+
+.readonly-field {
+  display: flex;
+  align-items: center;
+  min-height: 3rem;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.checkbox-field input {
+  width: auto;
+  margin: 0;
+}
+
+.checkbox-field span {
+  font-weight: 600;
+}
+
+.field-error {
+  color: #b91c1c;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.form-actions button {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
 }
 
 .detail-header {
@@ -693,6 +900,11 @@ body {
   .detail-grid {
     grid-template-columns: 1fr;
   }
+
+  .create-info-band,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
@@ -710,6 +922,12 @@ body {
   }
 
   .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .create-header,
+  .action-feedback {
     flex-direction: column;
     align-items: flex-start;
   }

@@ -29,3 +29,15 @@ class SqlAlchemyUsuarioRepository:
         )
         statement = select(Usuario).where(normalized_column == normalized_input)
         return self._db.scalar(statement)
+
+    def get_by_id(self, user_id: int) -> Usuario | None:
+        statement = select(Usuario).where(Usuario.id_usuario == user_id)
+        return self._db.scalar(statement)
+
+    def list_active_users(self) -> list[Usuario]:
+        statement = (
+            select(Usuario)
+            .where(Usuario.activo.is_(True))
+            .order_by(Usuario.nombre.asc(), Usuario.id_usuario.asc())
+        )
+        return list(self._db.scalars(statement).all())

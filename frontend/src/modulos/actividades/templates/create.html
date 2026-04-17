@@ -1,0 +1,187 @@
+{% extends "shared/templates/base.html" %}
+
+{% block content %}
+<section class="page-section activity-create-page">
+  <div class="create-header">
+    <div>
+      <p class="eyebrow">Registro de actividad</p>
+      <h1>Nueva actividad de abril</h1>
+      <p class="create-intro">
+        Completa los datos minimos del formulario. El sistema solo acepta
+        actividades entre el 1 y el 30 de abril y respeta los permisos del
+        usuario autenticado.
+      </p>
+    </div>
+    <a href="/calendario" class="detail-back-link">Volver al calendario</a>
+  </div>
+
+  <article class="card create-card">
+    <div class="create-info-band">
+      <div class="create-info-item">
+        <span class="summary-label">Usuario actual</span>
+        <strong>{{ usuario_actual.nombre }}</strong>
+      </div>
+      <div class="create-info-item">
+        <span class="summary-label">Rol</span>
+        <strong>{{ "Administrador" if create_view.allow_user_selection else "Usuario registrado" }}</strong>
+      </div>
+      <div class="create-info-item">
+        <span class="summary-label">Rango valido</span>
+        <strong>{{ create_view.april_range_label }}</strong>
+      </div>
+    </div>
+
+    {% if create_view.general_error %}
+    <div class="form-alert error">
+      {{ create_view.general_error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/actividades/nueva" class="activity-form">
+      <div class="form-grid">
+        <label class="form-field form-field-wide">
+          <span>Titulo *</span>
+          <input
+            type="text"
+            name="titulo"
+            maxlength="150"
+            value="{{ create_view.form.titulo }}"
+            required
+          >
+          {% if create_view.field_errors.get("titulo") %}
+          <small class="field-error">{{ create_view.field_errors["titulo"] }}</small>
+          {% endif %}
+        </label>
+
+        <label class="form-field form-field-wide">
+          <span>Descripcion</span>
+          <textarea
+            name="descripcion"
+            rows="4"
+            maxlength="1500"
+          >{{ create_view.form.descripcion }}</textarea>
+        </label>
+
+        <label class="form-field">
+          <span>Fecha de actividad *</span>
+          <input
+            type="date"
+            name="fecha_actividad"
+            value="{{ create_view.form.fecha_actividad }}"
+            required
+          >
+          {% if create_view.field_errors.get("fecha_actividad") %}
+          <small class="field-error">{{ create_view.field_errors["fecha_actividad"] }}</small>
+          {% endif %}
+        </label>
+
+        <label class="form-field">
+          <span>Hora de inicio *</span>
+          <input
+            type="time"
+            name="hora_inicio"
+            value="{{ create_view.form.hora_inicio }}"
+            required
+          >
+          {% if create_view.field_errors.get("hora_inicio") %}
+          <small class="field-error">{{ create_view.field_errors["hora_inicio"] }}</small>
+          {% endif %}
+        </label>
+
+        <label class="form-field">
+          <span>Hora de fin *</span>
+          <input
+            type="time"
+            name="hora_fin"
+            value="{{ create_view.form.hora_fin }}"
+            required
+          >
+          {% if create_view.field_errors.get("hora_fin") %}
+          <small class="field-error">{{ create_view.field_errors["hora_fin"] }}</small>
+          {% endif %}
+        </label>
+
+        <label class="form-field">
+          <span>Emoji</span>
+          <input
+            type="text"
+            name="emoji"
+            maxlength="20"
+            value="{{ create_view.form.emoji }}"
+            placeholder="📚"
+          >
+        </label>
+
+        <label class="form-field">
+          <span>Lugar</span>
+          <input
+            type="text"
+            name="lugar"
+            maxlength="150"
+            value="{{ create_view.form.lugar }}"
+            placeholder="Sala 2, casa, biblioteca..."
+          >
+        </label>
+
+        <label class="form-field">
+          <span>Categoria *</span>
+          <select name="id_categoria" required>
+            <option value="">Selecciona una categoria</option>
+            {% for categoria in create_view.categorias %}
+            <option
+              value="{{ categoria.value }}"
+              {% if create_view.form.id_categoria == categoria.value|string %}selected{% endif %}
+            >
+              {{ categoria.label }}
+            </option>
+            {% endfor %}
+          </select>
+          {% if create_view.field_errors.get("id_categoria") %}
+          <small class="field-error">{{ create_view.field_errors["id_categoria"] }}</small>
+          {% endif %}
+        </label>
+
+        {% if create_view.allow_user_selection %}
+        <label class="form-field">
+          <span>Usuario asociado *</span>
+          <select name="id_usuario" required>
+            <option value="">Selecciona un usuario</option>
+            {% for usuario in create_view.usuarios %}
+            <option
+              value="{{ usuario.value }}"
+              {% if create_view.form.id_usuario == usuario.value|string %}selected{% endif %}
+            >
+              {{ usuario.label }}
+            </option>
+            {% endfor %}
+          </select>
+          {% if create_view.field_errors.get("id_usuario") %}
+          <small class="field-error">{{ create_view.field_errors["id_usuario"] }}</small>
+          {% endif %}
+        </label>
+        {% else %}
+        <div class="form-field">
+          <span>Usuario asociado</span>
+          <div class="readonly-field">{{ create_view.usuarios[0].label if create_view.usuarios else usuario_actual.nombre }}</div>
+          <input type="hidden" name="id_usuario" value="{{ create_view.form.id_usuario }}">
+        </div>
+        {% endif %}
+
+        <label class="form-field checkbox-field form-field-wide">
+          <input
+            type="checkbox"
+            name="realizada"
+            {% if create_view.form.realizada %}checked{% endif %}
+          >
+          <span>Registrar la actividad como realizada desde su creacion</span>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit">Guardar actividad</button>
+        <a href="/calendario" class="secondary-action">Cancelar</a>
+      </div>
+    </form>
+  </article>
+</section>
+{% endblock %}

@@ -33,6 +33,7 @@ def calendario_status() -> dict[str, str]:
 @router.get("/", response_class=HTMLResponse)
 def calendario_view(
     request: Request,
+    actividad_creada: int | None = None,
     session_result: SesionResolutionResult = Depends(get_current_session_result),
     actividad_calendar_service: ActividadCalendarService = Depends(
         get_actividad_calendar_service
@@ -69,6 +70,7 @@ def calendario_view(
                 session_result.response.ultimo_movimiento_anterior
             ),
             "calendar_data": calendar_data,
+            "actividad_creada": actividad_creada,
         },
     )
 

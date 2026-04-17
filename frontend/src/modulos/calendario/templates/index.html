@@ -10,6 +10,9 @@
         Vista mensual de abril con actividades reales del sistema, organizadas
         por semana y visibles segun el alcance del usuario autenticado.
       </p>
+      <div class="calendar-hero-actions">
+        <a href="/actividades/nueva" class="primary-action">Nueva actividad</a>
+      </div>
     </div>
 
     <aside class="calendar-context card">
@@ -27,6 +30,13 @@
       </p>
     </aside>
   </div>
+
+  {% if actividad_creada %}
+  <section class="card action-feedback success">
+    <strong>Actividad creada correctamente.</strong>
+    <a href="/actividades/{{ actividad_creada }}">Ver detalle</a>
+  </section>
+  {% endif %}
 
   <div class="calendar-summary-band">
     <div class="summary-metric">

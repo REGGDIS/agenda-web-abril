@@ -2,11 +2,81 @@
 
 {% block content %}
 <section class="page-section">
-  <div class="card">
+  <div class="calendar-hero card">
+    <p class="eyebrow">Sesion validada</p>
     <h1>Calendario de Abril</h1>
-    <p>Vista inicial placeholder del sistema Agenda Abril.</p>
-    <p>Aqui se conectaran luego las actividades, alertas y estados del mes.</p>
+    <p>
+      Bienvenido, {{ usuario.nombre }}. Esta vista confirma desde navegador que
+      Agenda Abril reconocio tu sesion activa antes de mostrar el calendario.
+    </p>
+  </div>
+
+  <div class="dashboard-grid">
+    <article class="card">
+      <h2>Usuario actual</h2>
+      <dl class="info-list">
+        <div>
+          <dt>Nombre</dt>
+          <dd>{{ usuario.nombre }}</dd>
+        </div>
+        <div>
+          <dt>RUT</dt>
+          <dd>{{ usuario.rut }}</dd>
+        </div>
+        <div>
+          <dt>Rol</dt>
+          <dd>{{ usuario.id_rol }}</dd>
+        </div>
+        <div>
+          <dt>Tema preferido</dt>
+          <dd>{{ usuario.tema_preferido or "Sin definir" }}</dd>
+        </div>
+      </dl>
+    </article>
+
+    <article class="card">
+      <h2>Estado tecnico de la sesion</h2>
+      <dl class="info-list">
+        <div>
+          <dt>Estado</dt>
+          <dd>{{ session_status }}</dd>
+        </div>
+        <div>
+          <dt>Sesion activa</dt>
+          <dd>{{ "Si" if sesion.activa else "No" }}</dd>
+        </div>
+        <div>
+          <dt>ID sesion</dt>
+          <dd>{{ sesion.id_sesion }}</dd>
+        </div>
+        <div>
+          <dt>Usuario asociado</dt>
+          <dd>{{ sesion.id_usuario }}</dd>
+        </div>
+      </dl>
+    </article>
+  </div>
+
+  <div class="card">
+    <h2>Seguimiento de actividad</h2>
+    <dl class="info-list">
+      <div>
+        <dt>Inicio de sesion</dt>
+        <dd>{{ sesion.fecha_inicio }}</dd>
+      </div>
+      <div>
+        <dt>Ultimo movimiento previo</dt>
+        <dd>{{ ultimo_movimiento_anterior or "Sin registro previo" }}</dd>
+      </div>
+      <div>
+        <dt>Ultimo movimiento actual</dt>
+        <dd>{{ sesion.ultimo_movimiento }}</dd>
+      </div>
+      <div>
+        <dt>Actualizacion aplicada</dt>
+        <dd>{{ "Si" if ultimo_movimiento_actualizado else "No" }}</dd>
+      </div>
+    </dl>
   </div>
 </section>
 {% endblock %}
-

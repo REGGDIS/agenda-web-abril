@@ -1,7 +1,7 @@
-"""Rutas generales y vistas placeholder del proyecto."""
+"""Rutas generales del proyecto."""
 
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from backend.app.config.settings import get_settings
@@ -20,15 +20,7 @@ def healthcheck() -> dict[str, str]:
 
 @router.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="modulos/calendario/templates/index.html",
-        context={
-            "request": request,
-            "app_name": settings.app_name,
-            "page_title": "Calendario de Abril",
-        },
-    )
+    return RedirectResponse(url="/calendario", status_code=303)
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -42,4 +34,3 @@ def login_view(request: Request):
             "page_title": "Ingreso al sistema",
         },
     )
-

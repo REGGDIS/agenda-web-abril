@@ -3,6 +3,8 @@
 from backend.app.db.base_class import Base
 
 
+from backend.modulos.actividades.modelos import Actividad  # noqa: E402,F401
+from backend.modulos.categorias.modelos import Categoria  # noqa: E402,F401
 from backend.modulos.roles.modelos import Rol  # noqa: E402,F401
 from backend.modulos.sesiones.modelos import Sesion  # noqa: E402,F401
 from backend.modulos.usuarios.modelos import Usuario  # noqa: E402,F401

@@ -12,6 +12,7 @@ from backend.app.db.base_class import Base
 from backend.modulos.roles.modelos import Rol
 
 if TYPE_CHECKING:
+    from backend.modulos.actividades.modelos import Actividad
     from backend.modulos.sesiones.modelos import Sesion
 
 
@@ -29,4 +30,5 @@ class Usuario(Base):
     fecha_creacion: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     rol: Mapped[Rol] = relationship(back_populates="usuarios")
+    actividades: Mapped[list["Actividad"]] = relationship(back_populates="usuario")
     sesiones: Mapped[list["Sesion"]] = relationship(back_populates="usuario")

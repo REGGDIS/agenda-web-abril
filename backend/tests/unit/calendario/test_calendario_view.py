@@ -82,6 +82,52 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "Pendiente" in response.text
 
 
+def test_calendario_renders_delete_feedback_message():
+    client = get_client()
+    client.app.dependency_overrides[get_current_session_result] = lambda: (
+        SesionResolutionResult(
+            http_status=200,
+            response=SesionActualResponse(
+                success=True,
+                status="session_valid",
+                message="Sesion valida.",
+                cookie_present=True,
+                session_found=True,
+                session_active=True,
+                ultimo_movimiento_actualizado=True,
+                ultimo_movimiento_anterior=datetime(2026, 4, 17, 10, 0, 0),
+                sesion={
+                    "id_sesion": 7,
+                    "id_usuario": 1,
+                    "fecha_inicio": datetime(2026, 4, 17, 9, 45, 0),
+                    "ultimo_movimiento": datetime(2026, 4, 17, 10, 1, 0),
+                    "fecha_cierre": None,
+                    "activa": True,
+                },
+                usuario={
+                    "id_usuario": 1,
+                    "nombre": "Administrador",
+                    "rut": "12.345.678-5",
+                    "id_rol": 1,
+                    "tema_preferido": "light",
+                    "activo": True,
+                },
+            ),
+        )
+    )
+    client.app.dependency_overrides[get_actividad_calendar_service] = lambda: (
+        _FakeActividadCalendarService()
+    )
+
+    try:
+        response = client.get("/calendario?actividad_eliminada=1")
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert "Actividad eliminada correctamente." in response.text
+
+
 class _FakeActividadCalendarService:
     def get_calendar_data(self, query):
         assert query.user_id == 1

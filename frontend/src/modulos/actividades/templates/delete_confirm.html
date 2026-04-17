@@ -1,0 +1,72 @@
+{% extends "shared/templates/base.html" %}
+
+{% block content %}
+<section class="page-section delete-confirm-page">
+  <div class="create-header">
+    <div>
+      <p class="eyebrow">Confirmacion de eliminacion</p>
+      <h1>Eliminar actividad</h1>
+      <p class="create-intro">
+        Esta accion borrara la actividad de forma permanente desde la base de
+        datos. Una vez confirmada, dejara de aparecer en el calendario y su
+        detalle ya no estara disponible.
+      </p>
+    </div>
+    <a href="/actividades/{{ actividad_preview.id_actividad }}" class="detail-back-link">Volver al detalle</a>
+  </div>
+
+  <article class="card delete-confirm-card">
+    <div class="delete-confirm-alert">
+      Revisa la informacion antes de continuar. Esta accion no se puede deshacer
+      desde la interfaz actual.
+    </div>
+
+    <div class="delete-summary-grid">
+      <section class="detail-section">
+        <h2>Actividad</h2>
+        <dl class="detail-list">
+          <div>
+            <dt>Titulo</dt>
+            <dd>{{ actividad_preview.titulo }}</dd>
+          </div>
+          <div>
+            <dt>Descripcion</dt>
+            <dd>{{ actividad_preview.descripcion or "Sin descripcion registrada." }}</dd>
+          </div>
+          <div>
+            <dt>ID actividad</dt>
+            <dd>#{{ actividad_preview.id_actividad }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="detail-section">
+        <h2>Programacion</h2>
+        <dl class="detail-list">
+          <div>
+            <dt>Fecha</dt>
+            <dd>{{ actividad_preview.fecha_actividad_label }}</dd>
+          </div>
+          <div>
+            <dt>Horario</dt>
+            <dd>{{ actividad_preview.horario_label }}</dd>
+          </div>
+          <div>
+            <dt>Categoria</dt>
+            <dd>{{ actividad_preview.categoria_nombre or "Sin categoria" }}</dd>
+          </div>
+          <div>
+            <dt>Responsable</dt>
+            <dd>{{ actividad_preview.usuario_nombre or "Sin usuario asociado" }}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+
+    <form method="post" action="/actividades/{{ actividad_preview.id_actividad }}/eliminar" class="delete-actions">
+      <button type="submit" class="danger-action">Confirmar eliminacion</button>
+      <a href="/actividades/{{ actividad_preview.id_actividad }}" class="secondary-action">Cancelar</a>
+    </form>
+  </article>
+</section>
+{% endblock %}

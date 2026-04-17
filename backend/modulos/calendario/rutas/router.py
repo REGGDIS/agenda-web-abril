@@ -34,6 +34,7 @@ def calendario_status() -> dict[str, str]:
 def calendario_view(
     request: Request,
     actividad_creada: int | None = None,
+    actividad_eliminada: int | None = None,
     session_result: SesionResolutionResult = Depends(get_current_session_result),
     actividad_calendar_service: ActividadCalendarService = Depends(
         get_actividad_calendar_service
@@ -71,6 +72,7 @@ def calendario_view(
             ),
             "calendar_data": calendar_data,
             "actividad_creada": actividad_creada,
+            "actividad_eliminada": actividad_eliminada,
         },
     )
 

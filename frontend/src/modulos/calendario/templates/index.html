@@ -38,6 +38,13 @@
   </section>
   {% endif %}
 
+  {% if actividad_eliminada %}
+  <section class="card action-feedback success">
+    <strong>Actividad eliminada correctamente.</strong>
+    <a href="/calendario">Calendario actualizado</a>
+  </section>
+  {% endif %}
+
   <div class="calendar-summary-band">
     <div class="summary-metric">
       <span class="summary-label">Actividades</span>

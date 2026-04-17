@@ -6,6 +6,7 @@
     <div class="detail-header-actions">
       <a href="/calendario" class="detail-back-link">Volver al calendario</a>
       <a href="/actividades/{{ actividad.id_actividad }}/editar" class="secondary-action">Editar actividad</a>
+      <a href="/actividades/{{ actividad.id_actividad }}/eliminar" class="danger-secondary-action">Eliminar actividad</a>
     </div>
     <span class="detail-status-badge {{ 'done' if actividad.realizada else 'pending' }}">
       {{ "Realizada" if actividad.realizada else "Pendiente" }}

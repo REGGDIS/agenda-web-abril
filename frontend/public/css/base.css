@@ -476,7 +476,9 @@ body {
 }
 
 .primary-action,
-.secondary-action {
+.secondary-action,
+.danger-secondary-action,
+.danger-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -500,8 +502,24 @@ body {
   color: var(--text);
 }
 
+.danger-secondary-action {
+  border: 1px solid rgba(185, 28, 28, 0.22);
+  background: rgba(185, 28, 28, 0.08);
+  color: #991b1b;
+}
+
+.danger-action {
+  border: 0;
+  background: linear-gradient(180deg, #dc2626, #b91c1c);
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(185, 28, 28, 0.22);
+  cursor: pointer;
+}
+
 .primary-action:hover,
-.secondary-action:hover {
+.secondary-action:hover,
+.danger-secondary-action:hover,
+.danger-action:hover {
   filter: brightness(0.98);
 }
 
@@ -584,6 +602,10 @@ body {
   max-width: 1100px;
 }
 
+.delete-confirm-page {
+  max-width: 980px;
+}
+
 .create-header {
   display: flex;
   justify-content: space-between;
@@ -608,6 +630,33 @@ body {
 .create-card {
   display: grid;
   gap: 1.35rem;
+}
+
+.delete-confirm-card {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.delete-confirm-alert {
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(185, 28, 28, 0.18);
+  border-radius: 0.9rem;
+  background: rgba(185, 28, 28, 0.08);
+  color: #991b1b;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.delete-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.delete-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .create-info-band {
@@ -916,6 +965,7 @@ body {
   }
 
   .create-info-band,
+  .delete-summary-grid,
   .form-grid {
     grid-template-columns: 1fr;
   }

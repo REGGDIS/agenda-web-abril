@@ -65,6 +65,7 @@ def test_actividad_detail_renders_visible_information():
     assert "Usuario Abril" in response.text
     assert "11.111.111-1" in response.text
     assert "/actividades/1/editar" in response.text
+    assert "/actividades/1/eliminar" in response.text
 
 
 def test_actividad_detail_redirects_to_login_when_session_is_invalid():

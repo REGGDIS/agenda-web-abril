@@ -10,6 +10,10 @@ from backend.modulos.actividades.servicios import (
     ActividadCreateCommand,
     ActividadCreateFormQuery,
     ActividadCreateService,
+    ActividadDeleteCommand,
+    ActividadDeletePreview,
+    ActividadDeleteQuery,
+    ActividadDeleteService,
     ActividadDetailQuery,
     ActividadDetailService,
     ActividadEditCommand,
@@ -21,6 +25,7 @@ from backend.modulos.actividades.servicios import (
     ActivityNotFoundError,
     ActivityPermissionDeniedError,
     get_actividad_create_service,
+    get_actividad_delete_service,
     get_actividad_detail_service,
     get_actividad_edit_service,
 )
@@ -329,6 +334,85 @@ def actividad_edit_submit(
     )
 
 
+@router.get("/{actividad_id}/eliminar", response_class=HTMLResponse)
+def actividad_delete_confirm_view(
+    actividad_id: int,
+    request: Request,
+    session_result: SesionResolutionResult = Depends(get_current_session_result),
+    actividad_delete_service: ActividadDeleteService = Depends(
+        get_actividad_delete_service
+    ),
+):
+    if (
+        not session_result.response.success
+        or session_result.response.usuario is None
+        or session_result.response.sesion is None
+    ):
+        return RedirectResponse(url="/login", status_code=303)
+
+    try:
+        actividad_preview = actividad_delete_service.get_preview(
+            ActividadDeleteQuery(
+                actividad_id=actividad_id,
+                actor_user_id=session_result.response.usuario.id_usuario,
+                actor_role_id=session_result.response.usuario.id_rol,
+            )
+        )
+    except ActivityNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
+    except ActivityPermissionDeniedError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(exc),
+        ) from exc
+
+    return _render_delete_confirm_template(
+        request=request,
+        session_result=session_result,
+        actividad_preview=actividad_preview,
+    )
+
+
+@router.post("/{actividad_id}/eliminar")
+def actividad_delete_submit(
+    actividad_id: int,
+    session_result: SesionResolutionResult = Depends(get_current_session_result),
+    actividad_delete_service: ActividadDeleteService = Depends(
+        get_actividad_delete_service
+    ),
+):
+    if (
+        not session_result.response.success
+        or session_result.response.usuario is None
+        or session_result.response.sesion is None
+    ):
+        return RedirectResponse(url="/login", status_code=303)
+
+    try:
+        actividad_delete_service.delete(
+            ActividadDeleteCommand(
+                actividad_id=actividad_id,
+                actor_user_id=session_result.response.usuario.id_usuario,
+                actor_role_id=session_result.response.usuario.id_rol,
+            )
+        )
+    except ActivityNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
+    except ActivityPermissionDeniedError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(exc),
+        ) from exc
+
+    return RedirectResponse(url="/calendario?actividad_eliminada=1", status_code=303)
+
+
 @router.get("/{actividad_id}", response_class=HTMLResponse)
 def actividad_detail_view(
     actividad_id: int,
@@ -412,6 +496,25 @@ def _render_activity_form_template(
             "back_url": back_url,
         },
         status_code=status_code,
+    )
+
+
+def _render_delete_confirm_template(
+    *,
+    request: Request,
+    session_result: SesionResolutionResult,
+    actividad_preview: ActividadDeletePreview,
+) -> HTMLResponse:
+    return templates.TemplateResponse(
+        request=request,
+        name="modulos/actividades/templates/delete_confirm.html",
+        context={
+            "request": request,
+            "app_name": settings.app_name,
+            "page_title": "Eliminar actividad",
+            "usuario_actual": session_result.response.usuario,
+            "actividad_preview": actividad_preview,
+        },
     )
 
 

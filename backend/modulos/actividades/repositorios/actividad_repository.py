@@ -117,3 +117,7 @@ class SqlAlchemyActividadRepository:
         self._db.commit()
         self._db.refresh(actividad)
         return actividad
+
+    def delete(self, actividad: Actividad) -> None:
+        self._db.delete(actividad)
+        self._db.commit()

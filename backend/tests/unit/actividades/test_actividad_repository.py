@@ -166,6 +166,29 @@ def test_repository_update_persists_activity_changes():
         assert persisted.id_categoria == 1
 
 
+def test_repository_delete_removes_activity_from_database():
+    engine = create_engine("sqlite:///:memory:", future=True)
+    Base.metadata.create_all(engine)
+
+    with Session(engine) as db:
+        _seed_calendar_entities(db)
+
+        repository = SqlAlchemyActividadRepository(db)
+        actividad = repository.get_by_id(2)
+
+        assert actividad is not None
+
+        repository.delete(actividad)
+
+        assert repository.get_by_id(2) is None
+        actividades = repository.list_april_activities_for_calendar(
+            user_id=1,
+            include_all_users=True,
+            april_month=4,
+        )
+        assert [item.id_actividad for item in actividades] == [1]
+
+
 def _seed_calendar_entities(db: Session) -> None:
     db.add_all(
         [

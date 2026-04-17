@@ -25,6 +25,13 @@ from backend.modulos.actividades.servicios.detail_service import (
     ActividadDetailService,
     get_actividad_detail_service,
 )
+from backend.modulos.actividades.servicios.delete_service import (
+    ActividadDeleteCommand,
+    ActividadDeletePreview,
+    ActividadDeleteQuery,
+    ActividadDeleteService,
+    get_actividad_delete_service,
+)
 from backend.modulos.actividades.servicios.edit_service import (
     ActividadEditCommand,
     ActividadEditQuery,
@@ -43,6 +50,10 @@ __all__ = [
     "ActividadCreateService",
     "ActividadDetailQuery",
     "ActividadDetailService",
+    "ActividadDeleteCommand",
+    "ActividadDeletePreview",
+    "ActividadDeleteQuery",
+    "ActividadDeleteService",
     "ActividadEditCommand",
     "ActividadEditQuery",
     "ActividadEditService",
@@ -54,6 +65,7 @@ __all__ = [
     "get_actividad_calendar_service",
     "get_actividad_checklist_service",
     "get_actividad_create_service",
+    "get_actividad_delete_service",
     "get_actividad_detail_service",
     "get_actividad_edit_service",
 ]

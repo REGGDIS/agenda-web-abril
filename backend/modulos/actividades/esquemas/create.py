@@ -1,4 +1,4 @@
-"""Esquemas para la vista y el resultado de creacion de actividades."""
+"""Esquemas para formularios y resultados de mutacion de actividades."""
 
 from __future__ import annotations
 
@@ -41,6 +41,13 @@ class ActividadCreateViewData(BaseModel):
 
 class ActividadCreateResult(BaseModel):
     """Resultado minimo de una creacion exitosa."""
+
+    id_actividad: int
+    titulo: str
+
+
+class ActividadUpdateResult(BaseModel):
+    """Resultado minimo de una edicion exitosa."""
 
     id_actividad: int
     titulo: str

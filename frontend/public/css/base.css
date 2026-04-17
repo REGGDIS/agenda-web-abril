@@ -724,6 +724,13 @@ body {
   border: 0;
   cursor: pointer;
   font: inherit;
+  min-height: 2.75rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 0.85rem;
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 10px 22px rgba(239, 108, 87, 0.24);
 }
 
 .detail-header {
@@ -732,6 +739,13 @@ body {
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
+}
+
+.detail-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .detail-status-badge {
@@ -926,6 +940,7 @@ body {
     align-items: flex-start;
   }
 
+  .detail-header-actions,
   .create-header,
   .action-feedback {
     flex-direction: column;

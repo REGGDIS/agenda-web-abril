@@ -125,6 +125,47 @@ def test_repository_create_persists_new_activity():
         assert persisted.categoria.nombre_categoria == "Trabajo"
 
 
+def test_repository_update_persists_activity_changes():
+    engine = create_engine("sqlite:///:memory:", future=True)
+    Base.metadata.create_all(engine)
+
+    with Session(engine) as db:
+        _seed_calendar_entities(db)
+
+        repository = SqlAlchemyActividadRepository(db)
+        actividad = repository.get_by_id(2)
+
+        assert actividad is not None
+
+        actualizada = repository.update(
+            actividad,
+            titulo="Algebra avanzada",
+            descripcion="Resolver una nueva guia.",
+            fecha_actividad=date(2026, 4, 14),
+            hora_inicio=time(19, 0),
+            hora_fin=time(20, 0),
+            emoji="🧠",
+            realizada=False,
+            lugar="Biblioteca",
+            id_usuario=1,
+            id_categoria=1,
+        )
+
+        assert actualizada.titulo == "Algebra avanzada"
+
+        persisted = repository.get_by_id(2)
+        assert persisted is not None
+        assert persisted.titulo == "Algebra avanzada"
+        assert persisted.descripcion == "Resolver una nueva guia."
+        assert persisted.fecha_actividad == date(2026, 4, 14)
+        assert persisted.hora_inicio == time(19, 0)
+        assert persisted.hora_fin == time(20, 0)
+        assert persisted.realizada is False
+        assert persisted.lugar == "Biblioteca"
+        assert persisted.id_usuario == 1
+        assert persisted.id_categoria == 1
+
+
 def _seed_calendar_entities(db: Session) -> None:
     db.add_all(
         [

@@ -4,15 +4,13 @@
 <section class="page-section activity-create-page">
   <div class="create-header">
     <div>
-      <p class="eyebrow">Registro de actividad</p>
-      <h1>Nueva actividad de abril</h1>
+      <p class="eyebrow">{{ form_eyebrow }}</p>
+      <h1>{{ form_title }}</h1>
       <p class="create-intro">
-        Completa los datos minimos del formulario. El sistema solo acepta
-        actividades entre el 1 y el 30 de abril y respeta los permisos del
-        usuario autenticado.
+        {{ form_intro }}
       </p>
     </div>
-    <a href="/calendario" class="detail-back-link">Volver al calendario</a>
+    <a href="{{ back_url }}" class="detail-back-link">Volver</a>
   </div>
 
   <article class="card create-card">
@@ -37,7 +35,7 @@
     </div>
     {% endif %}
 
-    <form method="post" action="/actividades/nueva" class="activity-form">
+    <form method="post" action="{{ form_action }}" class="activity-form">
       <div class="form-grid">
         <label class="form-field form-field-wide">
           <span>Titulo *</span>
@@ -173,13 +171,13 @@
             name="realizada"
             {% if create_view.form.realizada %}checked{% endif %}
           >
-          <span>Registrar la actividad como realizada desde su creacion</span>
+          <span>Marcar la actividad como realizada</span>
         </label>
       </div>
 
       <div class="form-actions">
-        <button type="submit">Guardar actividad</button>
-        <a href="/calendario" class="secondary-action">Cancelar</a>
+        <button type="submit">{{ submit_label }}</button>
+        <a href="{{ cancel_url }}" class="secondary-action">Cancelar</a>
       </div>
     </form>
   </article>

@@ -11,6 +11,7 @@ from backend.modulos.actividades.esquemas.create import (
     ActividadCreateFormData,
     ActividadCreateOptionData,
     ActividadCreateResult,
+    ActividadUpdateResult,
     ActividadCreateViewData,
 )
 from backend.modulos.actividades.esquemas.detail import ActividadDetalleData
@@ -21,6 +22,7 @@ __all__ = [
     "ActividadCreateOptionData",
     "ActividadCreateResult",
     "ActividadCreateViewData",
+    "ActividadUpdateResult",
     "ActividadDetalleData",
     "CalendarioAbrilData",
     "CalendarioDayBlock",

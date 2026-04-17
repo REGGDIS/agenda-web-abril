@@ -87,3 +87,33 @@ class SqlAlchemyActividadRepository:
         self._db.commit()
         self._db.refresh(actividad)
         return actividad
+
+    def update(
+        self,
+        actividad: Actividad,
+        *,
+        titulo: str,
+        descripcion: str | None,
+        fecha_actividad: date,
+        hora_inicio: time,
+        hora_fin: time,
+        emoji: str | None,
+        realizada: bool,
+        lugar: str | None,
+        id_usuario: int,
+        id_categoria: int,
+    ) -> Actividad:
+        actividad.titulo = titulo
+        actividad.descripcion = descripcion
+        actividad.fecha_actividad = fecha_actividad
+        actividad.hora_inicio = hora_inicio
+        actividad.hora_fin = hora_fin
+        actividad.emoji = emoji
+        actividad.realizada = realizada
+        actividad.lugar = lugar
+        actividad.id_usuario = id_usuario
+        actividad.id_categoria = id_categoria
+        self._db.add(actividad)
+        self._db.commit()
+        self._db.refresh(actividad)
+        return actividad

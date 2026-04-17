@@ -25,6 +25,13 @@ from backend.modulos.actividades.servicios.detail_service import (
     ActividadDetailService,
     get_actividad_detail_service,
 )
+from backend.modulos.actividades.servicios.edit_service import (
+    ActividadEditCommand,
+    ActividadEditQuery,
+    ActividadEditService,
+    ActivityEditionValidationError,
+    get_actividad_edit_service,
+)
 
 __all__ = [
     "ActividadCalendarQuery",
@@ -36,6 +43,10 @@ __all__ = [
     "ActividadCreateService",
     "ActividadDetailQuery",
     "ActividadDetailService",
+    "ActividadEditCommand",
+    "ActividadEditQuery",
+    "ActividadEditService",
+    "ActivityEditionValidationError",
     "ActivityCreationPermissionDeniedError",
     "ActivityCreationValidationError",
     "ActivityNotFoundError",
@@ -44,4 +55,5 @@ __all__ = [
     "get_actividad_checklist_service",
     "get_actividad_create_service",
     "get_actividad_detail_service",
+    "get_actividad_edit_service",
 ]

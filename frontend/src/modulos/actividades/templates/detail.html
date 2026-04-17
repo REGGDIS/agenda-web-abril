@@ -3,11 +3,21 @@
 {% block content %}
 <section class="page-section activity-detail-page">
   <div class="detail-header">
-    <a href="/calendario" class="detail-back-link">Volver al calendario</a>
+    <div class="detail-header-actions">
+      <a href="/calendario" class="detail-back-link">Volver al calendario</a>
+      <a href="/actividades/{{ actividad.id_actividad }}/editar" class="secondary-action">Editar actividad</a>
+    </div>
     <span class="detail-status-badge {{ 'done' if actividad.realizada else 'pending' }}">
       {{ "Realizada" if actividad.realizada else "Pendiente" }}
     </span>
   </div>
+
+  {% if actividad_actualizada %}
+  <section class="card action-feedback success">
+    <strong>Actividad actualizada correctamente.</strong>
+    <a href="/calendario">Ver calendario</a>
+  </section>
+  {% endif %}
 
   <article class="detail-card card">
     <div class="detail-hero">

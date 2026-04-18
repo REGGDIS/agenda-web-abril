@@ -80,6 +80,8 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "/calendario/actividades/1/realizada" in response.text
     assert "/actividades/1" in response.text
     assert "Pendiente" in response.text
+    assert "Actividad destacada del dia" in response.text
+    assert "Se destaca la primera actividad pendiente del dia ordenada por hora." in response.text
 
 
 def test_calendario_renders_delete_feedback_message():
@@ -145,6 +147,22 @@ class _FakeActividadCalendarService:
             visible_for_all_users=True,
             total_actividades=1,
             total_dias_con_actividades=1,
+            featured_activity={
+                "id_actividad": 1,
+                "titulo": "Reunion general",
+                "fecha_actividad": date(2026, 4, 10),
+                "hora_inicio": time(9, 0),
+                "hora_fin": time(10, 0),
+                "descripcion": "Revision semanal del proyecto.",
+                "categoria_nombre": "Trabajo",
+                "emoji": "📌",
+                "realizada": False,
+                "lugar": "Sala 1",
+                "id_usuario": 1,
+            },
+            featured_activity_selection_rule=(
+                "Se destaca la primera actividad pendiente del dia ordenada por hora."
+            ),
             day_blocks=[
                 CalendarioDayBlock(
                     fecha=date(2026, 4, 10),

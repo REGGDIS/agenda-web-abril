@@ -45,6 +45,48 @@
   </section>
   {% endif %}
 
+  {% if calendar_data.featured_activity %}
+  <div class="featured-activity-overlay" id="featured-activity-modal" role="dialog" aria-modal="true" aria-labelledby="featured-activity-title">
+    <article class="featured-activity-modal card">
+      <button type="button" class="featured-close-button" data-calendar-popup-close aria-label="Cerrar actividad destacada">×</button>
+      <p class="eyebrow">Actividad destacada del dia</p>
+      <h2 id="featured-activity-title">
+        {% if calendar_data.featured_activity.emoji %}<span class="detail-emoji">{{ calendar_data.featured_activity.emoji }}</span>{% endif %}
+        {{ calendar_data.featured_activity.titulo }}
+      </h2>
+      <p class="featured-activity-copy">
+        {{ calendar_data.featured_activity_selection_rule }}
+      </p>
+      <dl class="featured-activity-list">
+        <div>
+          <dt>Fecha</dt>
+          <dd>{{ calendar_data.featured_activity.fecha_actividad.strftime("%d/%m/%Y") }}</dd>
+        </div>
+        <div>
+          <dt>Horario</dt>
+          <dd>{{ calendar_data.featured_activity.hora_inicio.strftime("%H:%M") }} - {{ calendar_data.featured_activity.hora_fin.strftime("%H:%M") }}</dd>
+        </div>
+        <div>
+          <dt>Categoria</dt>
+          <dd>{{ calendar_data.featured_activity.categoria_nombre or "Sin categoria" }}</dd>
+        </div>
+        <div>
+          <dt>Estado</dt>
+          <dd>{{ "Realizada" if calendar_data.featured_activity.realizada else "Pendiente" }}</dd>
+        </div>
+        <div>
+          <dt>Lugar</dt>
+          <dd>{{ calendar_data.featured_activity.lugar or "Sin lugar definido" }}</dd>
+        </div>
+      </dl>
+      <div class="featured-activity-actions">
+        <a href="/actividades/{{ calendar_data.featured_activity.id_actividad }}" class="primary-action">Ver detalle</a>
+        <button type="button" class="secondary-action" data-calendar-popup-close>Cerrar</button>
+      </div>
+    </article>
+  </div>
+  {% endif %}
+
   <div class="calendar-summary-band">
     <div class="summary-metric">
       <span class="summary-label">Actividades</span>

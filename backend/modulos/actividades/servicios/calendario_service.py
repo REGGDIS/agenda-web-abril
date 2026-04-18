@@ -6,7 +6,7 @@ import calendar
 from dataclasses import dataclass
 from datetime import date
 from itertools import groupby
-from typing import Protocol
+from typing import Callable, Protocol
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -71,9 +71,11 @@ class ActividadCalendarService:
         actividad_repository: ActividadCalendarRepository,
         *,
         april_month: int,
+        today_provider: Callable[[], date] | None = None,
     ) -> None:
         self._actividad_repository = actividad_repository
         self._april_month = april_month
+        self._today_provider = today_provider or date.today
 
     def get_calendar_data(self, query: ActividadCalendarQuery) -> CalendarioAbrilData:
         actividades = self._actividad_repository.list_april_activities_for_calendar(
@@ -106,6 +108,7 @@ class ActividadCalendarService:
             reference_year=reference_year,
             activities_by_date=activities_by_date,
         )
+        featured_activity = self._select_featured_activity_for_today(projected_activities)
 
         return CalendarioAbrilData(
             month_label=f"Abril {reference_year}",
@@ -115,6 +118,13 @@ class ActividadCalendarService:
             total_dias_con_actividades=len(day_blocks),
             day_blocks=day_blocks,
             weeks=weeks,
+            featured_activity=featured_activity,
+            featured_activity_selection_rule=(
+                "Se destaca la primera actividad pendiente del dia ordenada por hora. "
+                "Si todas ya estan realizadas, se muestra la primera actividad del dia."
+            )
+            if featured_activity is not None
+            else None,
         )
 
     @staticmethod
@@ -155,6 +165,30 @@ class ActividadCalendarService:
         if actividades:
             return actividades[0].fecha_actividad.year
         return date.today().year
+
+    def _select_featured_activity_for_today(
+        self,
+        projected_activities: list[ActividadCalendarioData],
+    ) -> ActividadCalendarioData | None:
+        today = self._today_provider()
+        if today.month != self._april_month:
+            return None
+
+        todays_activities = [
+            actividad
+            for actividad in projected_activities
+            if actividad.fecha_actividad == today
+        ]
+        if not todays_activities:
+            return None
+
+        pending_activities = [
+            actividad for actividad in todays_activities if not actividad.realizada
+        ]
+        if pending_activities:
+            return pending_activities[0]
+
+        return todays_activities[0]
 
     def _build_month_weeks(
         self,

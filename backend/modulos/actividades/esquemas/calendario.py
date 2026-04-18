@@ -60,3 +60,5 @@ class CalendarioAbrilData(BaseModel):
     total_dias_con_actividades: int
     day_blocks: list[CalendarioDayBlock]
     weeks: list[CalendarioWeekRow]
+    featured_activity: ActividadCalendarioData | None = None
+    featured_activity_selection_rule: str | None = None

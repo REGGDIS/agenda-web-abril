@@ -81,6 +81,9 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "/actividades/1" in response.text
     assert "Pendiente" in response.text
     assert "Actividad destacada del dia" in response.text
+    assert 'data-theme-preference="light"' in response.text
+    assert "data-theme-toggle" in response.text
+    assert "Tema" in response.text
     assert "Se destaca la primera actividad pendiente del dia ordenada por hora." in response.text
     assert "Proxima actividad pendiente" in response.text
     assert "Faltan 1 dia y 30 minutos." in response.text

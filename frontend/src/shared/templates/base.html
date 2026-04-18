@@ -1,9 +1,29 @@
+{% set preferred_theme = "light" %}
+{% if usuario is defined and usuario.tema_preferido in ["light", "dark"] %}
+  {% set preferred_theme = usuario.tema_preferido %}
+{% endif %}
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es" data-theme="{{ preferred_theme }}" data-theme-preference="{{ preferred_theme }}">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title or app_name }}</title>
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const fallbackTheme = root.dataset.themePreference || "light";
+
+        try {
+          const storedTheme = window.localStorage.getItem("agenda-abril-theme");
+          const resolvedTheme = storedTheme === "dark" || storedTheme === "light"
+            ? storedTheme
+            : fallbackTheme;
+          root.setAttribute("data-theme", resolvedTheme);
+        } catch {
+          root.setAttribute("data-theme", fallbackTheme);
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="{{ request.url_for('static', path='css/base.css') }}">
   </head>
   <body>
@@ -12,11 +32,30 @@
         <strong>{{ app_name }}</strong>
         <p class="subtitle">Esqueleto inicial del proyecto</p>
       </div>
-      <nav class="site-nav">
-        <a href="/calendario">Inicio</a>
-        <a href="/actividades/nueva">Nueva actividad</a>
-        <a href="/login">Login</a>
-      </nav>
+      <div class="site-header-actions">
+        <nav class="site-nav">
+          <a href="/calendario">Inicio</a>
+          <a href="/actividades/nueva">Nueva actividad</a>
+          <a href="/login">Login</a>
+        </nav>
+        <button
+          type="button"
+          class="theme-toggle"
+          data-theme-toggle
+          aria-pressed="{{ 'true' if preferred_theme == 'dark' else 'false' }}"
+          title="Cambiar entre modo claro y modo oscuro"
+        >
+          <span class="theme-toggle-icon" data-theme-toggle-icon aria-hidden="true">
+            {{ "O" if preferred_theme == "dark" else "C" }}
+          </span>
+          <span class="theme-toggle-copy">
+            <span class="theme-toggle-label">Tema</span>
+            <strong data-theme-toggle-state>
+              {{ "Oscuro" if preferred_theme == "dark" else "Claro" }}
+            </strong>
+          </span>
+        </button>
+      </div>
     </header>
 
     <main class="site-main">

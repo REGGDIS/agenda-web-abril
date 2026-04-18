@@ -45,7 +45,7 @@
   </section>
   {% endif %}
 
-  <section class="card next-activity-card">
+  <section class="card next-activity-card {{ 'alert-active' if calendar_data.next_pending_activity_alert_active else '' }}">
     <div class="next-activity-header">
       <div>
         <p class="eyebrow">Cuenta regresiva</p>
@@ -60,6 +60,20 @@
     <p class="next-activity-rule">
       {{ calendar_data.next_pending_activity_selection_rule }}
     </p>
+    <div
+      class="next-activity-alert-banner {{ '' if calendar_data.next_pending_activity_alert_active else 'is-hidden' }}"
+      data-next-activity-alert-visual
+      {% if not calendar_data.next_pending_activity_alert_active %}hidden aria-hidden="true"{% endif %}
+    >
+      <strong>Comienza en menos de una hora.</strong>
+      <span>{{ calendar_data.next_pending_activity_alert_message or "Alerta sonora preparada para la proxima actividad visible." }}</span>
+    </div>
+    <audio
+      id="next-activity-alert-audio"
+      preload="auto"
+      data-next-activity-alert-audio
+      src="{{ request.url_for('static', path='assets/sonidos/proxima-actividad-alerta.wav') }}"
+    ></audio>
     <div class="next-activity-grid">
       <div class="next-activity-main">
         <h3>
@@ -81,6 +95,7 @@
           class="next-activity-countdown-value"
           data-next-activity-countdown
           data-starts-at="{{ calendar_data.next_pending_activity_starts_at.strftime('%Y-%m-%dT%H:%M:%S') }}"
+          data-alert-active="{{ 'true' if calendar_data.next_pending_activity_alert_active else 'false' }}"
         >
           {{ calendar_data.next_pending_activity_countdown_label }}
         </strong>

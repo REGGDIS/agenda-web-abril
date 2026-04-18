@@ -118,14 +118,24 @@ class ActividadCalendarService:
         )
         next_pending_activity_starts_at = None
         next_pending_activity_countdown_label = None
+        next_pending_activity_alert_active = False
+        next_pending_activity_alert_message = None
         if next_pending_activity is not None:
             next_pending_activity_starts_at = datetime.combine(
                 next_pending_activity.fecha_actividad,
                 next_pending_activity.hora_inicio,
             )
+            remaining_time = next_pending_activity_starts_at - current_moment
             next_pending_activity_countdown_label = self._build_countdown_label(
-                next_pending_activity_starts_at - current_moment
+                remaining_time
             )
+            next_pending_activity_alert_active = self._is_alert_window_active(
+                remaining_time
+            )
+            if next_pending_activity_alert_active:
+                next_pending_activity_alert_message = (
+                    "Comienza en menos de una hora. Alerta sonora habilitada para esta pagina."
+                )
 
         return CalendarioAbrilData(
             month_label=f"Abril {reference_year}",
@@ -150,6 +160,8 @@ class ActividadCalendarService:
             else None,
             next_pending_activity_countdown_label=next_pending_activity_countdown_label,
             next_pending_activity_starts_at=next_pending_activity_starts_at,
+            next_pending_activity_alert_active=next_pending_activity_alert_active,
+            next_pending_activity_alert_message=next_pending_activity_alert_message,
         )
 
     @staticmethod
@@ -270,6 +282,10 @@ class ActividadCalendarService:
             return f"Faltan {parts[0]} y {parts[1]}."
 
         return f"Faltan {parts[0]}, {parts[1]} y {parts[2]}."
+
+    @staticmethod
+    def _is_alert_window_active(remaining_time: timedelta) -> bool:
+        return timedelta(0) < remaining_time <= timedelta(hours=1)
 
     def _build_month_weeks(
         self,

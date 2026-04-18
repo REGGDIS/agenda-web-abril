@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.info("Agenda Abril: frontend base cargado.");
+  const alertWindowInMilliseconds = 60 * 60 * 1000;
 
   const parseLocalDateTime = (value) => {
     if (typeof value !== "string" || value.length < 16) {
@@ -57,6 +58,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return `Faltan ${parts[0]}, ${parts[1]} y ${parts[2]}.`;
   };
 
+  const isAlertWindowActive = (targetDate) => {
+    const differenceInMilliseconds = targetDate.getTime() - Date.now();
+    return differenceInMilliseconds > 0 && differenceInMilliseconds <= alertWindowInMilliseconds;
+  };
+
   const featuredActivityModal = document.querySelector("#featured-activity-modal");
   if (featuredActivityModal instanceof HTMLElement) {
     const closeFeaturedActivityModal = () => {
@@ -77,10 +83,84 @@ document.addEventListener("DOMContentLoaded", () => {
     const startsAt = parseLocalDateTime(
       nextActivityCountdown.dataset.startsAt ?? "",
     );
+    const nextActivityCard = document.querySelector(".next-activity-card");
+    const nextActivityAlertBanner = document.querySelector("[data-next-activity-alert-visual]");
+    const nextActivityAlertMessage = nextActivityAlertBanner?.querySelector("span");
+    const nextActivityAlertAudio = document.querySelector("[data-next-activity-alert-audio]");
+    const initialAlertMessage = nextActivityAlertMessage?.textContent ?? "";
+    let alertAlreadyPlayed = false;
+    let alertRetryRegistered = false;
+
+    const syncAlertVisualState = (alertIsActive) => {
+      if (nextActivityCard instanceof HTMLElement) {
+        nextActivityCard.classList.toggle("alert-active", alertIsActive);
+      }
+
+      if (nextActivityAlertBanner instanceof HTMLElement) {
+        nextActivityAlertBanner.hidden = !alertIsActive;
+        nextActivityAlertBanner.setAttribute("aria-hidden", String(!alertIsActive));
+        nextActivityAlertBanner.classList.toggle("is-hidden", !alertIsActive);
+      }
+
+      if (nextActivityAlertMessage instanceof HTMLElement && alertIsActive) {
+        nextActivityAlertMessage.textContent = initialAlertMessage;
+      }
+    };
+
+    const registerAlertRetryOnInteraction = () => {
+      if (alertRetryRegistered || alertAlreadyPlayed) {
+        return;
+      }
+
+      alertRetryRegistered = true;
+      const retryEvents = ["click", "keydown", "touchstart"];
+      const retryPlayback = () => {
+        alertRetryRegistered = false;
+        retryEvents.forEach((eventName) => {
+          document.removeEventListener(eventName, retryPlayback);
+        });
+        attemptAlertPlayback();
+      };
+
+      retryEvents.forEach((eventName) => {
+        document.addEventListener(eventName, retryPlayback, { once: true });
+      });
+    };
+
+    const attemptAlertPlayback = async () => {
+      if (
+        !(startsAt instanceof Date) ||
+        Number.isNaN(startsAt.getTime()) ||
+        alertAlreadyPlayed ||
+        !isAlertWindowActive(startsAt) ||
+        !(nextActivityAlertAudio instanceof HTMLAudioElement)
+      ) {
+        return;
+      }
+
+      try {
+        nextActivityAlertAudio.currentTime = 0;
+        await nextActivityAlertAudio.play();
+        alertAlreadyPlayed = true;
+        if (nextActivityAlertMessage instanceof HTMLElement) {
+          nextActivityAlertMessage.textContent = initialAlertMessage;
+        }
+      } catch {
+        if (nextActivityAlertMessage instanceof HTMLElement) {
+          nextActivityAlertMessage.textContent = "El navegador puede requerir una interaccion para reproducir el sonido.";
+        }
+        registerAlertRetryOnInteraction();
+      }
+    };
 
     if (startsAt instanceof Date && !Number.isNaN(startsAt.getTime())) {
       const refreshCountdown = () => {
         nextActivityCountdown.textContent = formatRemainingTime(startsAt);
+        const alertIsActive = isAlertWindowActive(startsAt);
+        syncAlertVisualState(alertIsActive);
+        if (alertIsActive) {
+          void attemptAlertPlayback();
+        }
       };
 
       refreshCountdown();

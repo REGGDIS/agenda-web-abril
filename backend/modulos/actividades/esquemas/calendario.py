@@ -66,3 +66,5 @@ class CalendarioAbrilData(BaseModel):
     next_pending_activity_selection_rule: str | None = None
     next_pending_activity_countdown_label: str | None = None
     next_pending_activity_starts_at: datetime | None = None
+    next_pending_activity_alert_active: bool = False
+    next_pending_activity_alert_message: str | None = None

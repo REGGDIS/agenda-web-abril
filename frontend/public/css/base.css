@@ -181,6 +181,11 @@ body {
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 249, 252, 0.98));
 }
 
+.next-activity-card.alert-active {
+  border-color: rgba(185, 28, 28, 0.24);
+  box-shadow: 0 14px 32px rgba(185, 28, 28, 0.12);
+}
+
 .next-activity-header {
   display: flex;
   justify-content: space-between;
@@ -211,6 +216,21 @@ body {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.next-activity-alert-banner {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(185, 28, 28, 0.2);
+  border-radius: 0.95rem;
+  background: linear-gradient(180deg, rgba(185, 28, 28, 0.12), rgba(185, 28, 28, 0.04));
+  color: #991b1b;
+}
+
+.next-activity-alert-banner strong,
+.next-activity-alert-banner span {
+  display: block;
 }
 
 .next-activity-grid {

@@ -143,6 +143,8 @@ def test_calendar_service_groups_activities_by_day():
     assert result.next_pending_activity.id_actividad == 10
     assert result.next_pending_activity_selection_rule is not None
     assert result.next_pending_activity_countdown_label == "Faltan 30 minutos."
+    assert result.next_pending_activity_alert_active is True
+    assert result.next_pending_activity_alert_message is not None
     assert len(result.weeks) == 5
     assert len(result.weeks[0].cells) == 7
     assert result.weeks[0].cells[0].is_padding is True
@@ -185,6 +187,8 @@ def test_calendar_service_uses_first_activity_when_all_today_are_done():
     assert result.next_pending_activity is not None
     assert result.next_pending_activity.id_actividad == 12
     assert result.next_pending_activity_countdown_label == "Faltan 2 dias, 4 horas y 30 minutos."
+    assert result.next_pending_activity_alert_active is False
+    assert result.next_pending_activity_alert_message is None
 
 
 def test_calendar_service_skips_featured_activity_when_today_has_no_visible_items():
@@ -203,3 +207,5 @@ def test_calendar_service_skips_featured_activity_when_today_has_no_visible_item
     assert result.next_pending_activity is None
     assert result.next_pending_activity_selection_rule is None
     assert result.next_pending_activity_countdown_label is None
+    assert result.next_pending_activity_alert_active is False
+    assert result.next_pending_activity_alert_message is None

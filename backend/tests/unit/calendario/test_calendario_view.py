@@ -85,6 +85,7 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "Proxima actividad pendiente" in response.text
     assert "Faltan 1 dia y 30 minutos." in response.text
     assert "Se selecciona la actividad pendiente futura mas cercana por fecha y hora de inicio." in response.text
+    assert "/static/assets/sonidos/proxima-actividad-alerta.wav" in response.text
 
 
 def test_calendario_renders_delete_feedback_message():
@@ -230,6 +231,8 @@ class _FakeActividadCalendarService:
             ),
             next_pending_activity_countdown_label="Faltan 1 dia y 30 minutos.",
             next_pending_activity_starts_at=datetime(2026, 4, 10, 9, 0),
+            next_pending_activity_alert_active=False,
+            next_pending_activity_alert_message=None,
             day_blocks=[
                 CalendarioDayBlock(
                     fecha=date(2026, 4, 10),

@@ -82,6 +82,9 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "Pendiente" in response.text
     assert "Actividad destacada del dia" in response.text
     assert "Se destaca la primera actividad pendiente del dia ordenada por hora." in response.text
+    assert "Proxima actividad pendiente" in response.text
+    assert "Faltan 1 dia y 30 minutos." in response.text
+    assert "Se selecciona la actividad pendiente futura mas cercana por fecha y hora de inicio." in response.text
 
 
 def test_calendario_renders_delete_feedback_message():
@@ -130,6 +133,52 @@ def test_calendario_renders_delete_feedback_message():
     assert "Actividad eliminada correctamente." in response.text
 
 
+def test_calendario_renders_empty_next_activity_message():
+    client = get_client()
+    client.app.dependency_overrides[get_current_session_result] = lambda: (
+        SesionResolutionResult(
+            http_status=200,
+            response=SesionActualResponse(
+                success=True,
+                status="session_valid",
+                message="Sesion valida.",
+                cookie_present=True,
+                session_found=True,
+                session_active=True,
+                ultimo_movimiento_actualizado=True,
+                ultimo_movimiento_anterior=datetime(2026, 4, 17, 10, 0, 0),
+                sesion={
+                    "id_sesion": 7,
+                    "id_usuario": 1,
+                    "fecha_inicio": datetime(2026, 4, 17, 9, 45, 0),
+                    "ultimo_movimiento": datetime(2026, 4, 17, 10, 1, 0),
+                    "fecha_cierre": None,
+                    "activa": True,
+                },
+                usuario={
+                    "id_usuario": 1,
+                    "nombre": "Administrador",
+                    "rut": "12.345.678-5",
+                    "id_rol": 1,
+                    "tema_preferido": "light",
+                    "activo": True,
+                },
+            ),
+        )
+    )
+    client.app.dependency_overrides[get_actividad_calendar_service] = lambda: (
+        _FakeActividadCalendarServiceWithoutNextActivity()
+    )
+
+    try:
+        response = client.get("/calendario")
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert "No hay proximas actividades pendientes dentro del alcance visible para esta sesion." in response.text
+
+
 class _FakeActividadCalendarService:
     def get_calendar_data(self, query):
         assert query.user_id == 1
@@ -163,6 +212,24 @@ class _FakeActividadCalendarService:
             featured_activity_selection_rule=(
                 "Se destaca la primera actividad pendiente del dia ordenada por hora."
             ),
+            next_pending_activity={
+                "id_actividad": 1,
+                "titulo": "Reunion general",
+                "fecha_actividad": date(2026, 4, 10),
+                "hora_inicio": time(9, 0),
+                "hora_fin": time(10, 0),
+                "descripcion": "Revision semanal del proyecto.",
+                "categoria_nombre": "Trabajo",
+                "emoji": "📌",
+                "realizada": False,
+                "lugar": "Sala 1",
+                "id_usuario": 1,
+            },
+            next_pending_activity_selection_rule=(
+                "Se selecciona la actividad pendiente futura mas cercana por fecha y hora de inicio."
+            ),
+            next_pending_activity_countdown_label="Faltan 1 dia y 30 minutos.",
+            next_pending_activity_starts_at=datetime(2026, 4, 10, 9, 0),
             day_blocks=[
                 CalendarioDayBlock(
                     fecha=date(2026, 4, 10),
@@ -324,3 +391,13 @@ class _FakeActividadCalendarService:
                 ),
             ],
         )
+
+
+class _FakeActividadCalendarServiceWithoutNextActivity(_FakeActividadCalendarService):
+    def get_calendar_data(self, query):
+        data = super().get_calendar_data(query)
+        data.next_pending_activity = None
+        data.next_pending_activity_selection_rule = None
+        data.next_pending_activity_countdown_label = None
+        data.next_pending_activity_starts_at = None
+        return data

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, time
+from datetime import date, datetime, time
 
 from backend.modulos.actividades.servicios import (
     ActividadCalendarQuery,
@@ -63,7 +63,7 @@ class StubActividadRepository:
                 hora_fin=time(15, 0),
                 descripcion="Tercera actividad",
                 emoji="✅",
-                realizada=True,
+                realizada=False,
                 lugar="Casa",
                 id_usuario=2,
                 categoria=_FakeCategoria("Personal"),
@@ -111,6 +111,7 @@ def test_calendar_service_groups_activities_by_day():
         repository,
         april_month=4,
         today_provider=lambda: date(2026, 4, 10),
+        now_provider=lambda: datetime(2026, 4, 10, 8, 30),
     )
 
     result = service.get_calendar_data(ActividadCalendarQuery(user_id=2, role_id=2))
@@ -138,6 +139,10 @@ def test_calendar_service_groups_activities_by_day():
     assert result.featured_activity is not None
     assert result.featured_activity.id_actividad == 10
     assert result.featured_activity_selection_rule is not None
+    assert result.next_pending_activity is not None
+    assert result.next_pending_activity.id_actividad == 10
+    assert result.next_pending_activity_selection_rule is not None
+    assert result.next_pending_activity_countdown_label == "Faltan 30 minutos."
     assert len(result.weeks) == 5
     assert len(result.weeks[0].cells) == 7
     assert result.weeks[0].cells[0].is_padding is True
@@ -153,6 +158,7 @@ def test_calendar_service_prepares_admin_scope():
         repository,
         april_month=4,
         today_provider=lambda: date(2026, 4, 10),
+        now_provider=lambda: datetime(2026, 4, 10, 8, 30),
     )
 
     service.get_calendar_data(ActividadCalendarQuery(user_id=1, role_id=1))
@@ -168,6 +174,7 @@ def test_calendar_service_uses_first_activity_when_all_today_are_done():
         repository,
         april_month=4,
         today_provider=lambda: date(2026, 4, 10),
+        now_provider=lambda: datetime(2026, 4, 10, 9, 30),
     )
 
     result = service.get_calendar_data(ActividadCalendarQuery(user_id=2, role_id=2))
@@ -175,6 +182,9 @@ def test_calendar_service_uses_first_activity_when_all_today_are_done():
     assert result.featured_activity is not None
     assert result.featured_activity.id_actividad == 10
     assert result.featured_activity.realizada is True
+    assert result.next_pending_activity is not None
+    assert result.next_pending_activity.id_actividad == 12
+    assert result.next_pending_activity_countdown_label == "Faltan 2 dias, 4 horas y 30 minutos."
 
 
 def test_calendar_service_skips_featured_activity_when_today_has_no_visible_items():
@@ -183,9 +193,13 @@ def test_calendar_service_skips_featured_activity_when_today_has_no_visible_item
         repository,
         april_month=4,
         today_provider=lambda: date(2026, 4, 18),
+        now_provider=lambda: datetime(2026, 4, 18, 9, 0),
     )
 
     result = service.get_calendar_data(ActividadCalendarQuery(user_id=2, role_id=2))
 
     assert result.featured_activity is None
     assert result.featured_activity_selection_rule is None
+    assert result.next_pending_activity is None
+    assert result.next_pending_activity_selection_rule is None
+    assert result.next_pending_activity_countdown_label is None

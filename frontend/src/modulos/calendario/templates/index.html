@@ -45,6 +45,57 @@
   </section>
   {% endif %}
 
+  <section class="card next-activity-card">
+    <div class="next-activity-header">
+      <div>
+        <p class="eyebrow">Cuenta regresiva</p>
+        <h2>Proxima actividad pendiente</h2>
+      </div>
+      <span class="next-activity-badge">
+        {{ "Visible para todos" if calendar_data.visible_for_all_users else "Visible para mi" }}
+      </span>
+    </div>
+
+    {% if calendar_data.next_pending_activity %}
+    <p class="next-activity-rule">
+      {{ calendar_data.next_pending_activity_selection_rule }}
+    </p>
+    <div class="next-activity-grid">
+      <div class="next-activity-main">
+        <h3>
+          {% if calendar_data.next_pending_activity.emoji %}<span class="detail-emoji">{{ calendar_data.next_pending_activity.emoji }}</span>{% endif %}
+          {{ calendar_data.next_pending_activity.titulo }}
+        </h3>
+        <p class="next-activity-meta">
+          {{ calendar_data.next_pending_activity.fecha_actividad.strftime("%d/%m/%Y") }}
+          a las {{ calendar_data.next_pending_activity.hora_inicio.strftime("%H:%M") }}
+        </p>
+        <p class="next-activity-support">
+          {{ calendar_data.next_pending_activity.categoria_nombre or "Sin categoria" }}
+          {% if calendar_data.next_pending_activity.lugar %}· {{ calendar_data.next_pending_activity.lugar }}{% endif %}
+        </p>
+      </div>
+      <div class="next-activity-countdown-block">
+        <span class="next-activity-countdown-label">Tiempo restante</span>
+        <strong
+          class="next-activity-countdown-value"
+          data-next-activity-countdown
+          data-starts-at="{{ calendar_data.next_pending_activity_starts_at.strftime('%Y-%m-%dT%H:%M:%S') }}"
+        >
+          {{ calendar_data.next_pending_activity_countdown_label }}
+        </strong>
+      </div>
+    </div>
+    <div class="next-activity-actions">
+      <a href="/actividades/{{ calendar_data.next_pending_activity.id_actividad }}" class="primary-action">Ver detalle</a>
+    </div>
+    {% else %}
+    <p class="next-activity-empty">
+      No hay proximas actividades pendientes dentro del alcance visible para esta sesion.
+    </p>
+    {% endif %}
+  </section>
+
   {% if calendar_data.featured_activity %}
   <div class="featured-activity-overlay" id="featured-activity-modal" role="dialog" aria-modal="true" aria-labelledby="featured-activity-title">
     <article class="featured-activity-modal card">

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import calendar
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime, timedelta
 from itertools import groupby
 from typing import Callable, Protocol
 
@@ -72,10 +72,12 @@ class ActividadCalendarService:
         *,
         april_month: int,
         today_provider: Callable[[], date] | None = None,
+        now_provider: Callable[[], datetime] | None = None,
     ) -> None:
         self._actividad_repository = actividad_repository
         self._april_month = april_month
         self._today_provider = today_provider or date.today
+        self._now_provider = now_provider or datetime.now
 
     def get_calendar_data(self, query: ActividadCalendarQuery) -> CalendarioAbrilData:
         actividades = self._actividad_repository.list_april_activities_for_calendar(
@@ -108,7 +110,22 @@ class ActividadCalendarService:
             reference_year=reference_year,
             activities_by_date=activities_by_date,
         )
+        current_moment = self._now_provider()
         featured_activity = self._select_featured_activity_for_today(projected_activities)
+        next_pending_activity = self._select_next_pending_activity(
+            projected_activities,
+            current_moment=current_moment,
+        )
+        next_pending_activity_starts_at = None
+        next_pending_activity_countdown_label = None
+        if next_pending_activity is not None:
+            next_pending_activity_starts_at = datetime.combine(
+                next_pending_activity.fecha_actividad,
+                next_pending_activity.hora_inicio,
+            )
+            next_pending_activity_countdown_label = self._build_countdown_label(
+                next_pending_activity_starts_at - current_moment
+            )
 
         return CalendarioAbrilData(
             month_label=f"Abril {reference_year}",
@@ -125,6 +142,14 @@ class ActividadCalendarService:
             )
             if featured_activity is not None
             else None,
+            next_pending_activity=next_pending_activity,
+            next_pending_activity_selection_rule=(
+                "Se selecciona la actividad pendiente futura mas cercana por fecha y hora de inicio."
+            )
+            if next_pending_activity is not None
+            else None,
+            next_pending_activity_countdown_label=next_pending_activity_countdown_label,
+            next_pending_activity_starts_at=next_pending_activity_starts_at,
         )
 
     @staticmethod
@@ -189,6 +214,62 @@ class ActividadCalendarService:
             return pending_activities[0]
 
         return todays_activities[0]
+
+    def _select_next_pending_activity(
+        self,
+        projected_activities: list[ActividadCalendarioData],
+        *,
+        current_moment: datetime,
+    ) -> ActividadCalendarioData | None:
+        future_pending_activities = [
+            actividad
+            for actividad in projected_activities
+            if not actividad.realizada
+            and datetime.combine(
+                actividad.fecha_actividad,
+                actividad.hora_inicio,
+            )
+            > current_moment
+        ]
+        if not future_pending_activities:
+            return None
+
+        future_pending_activities.sort(
+            key=lambda actividad: (
+                actividad.fecha_actividad,
+                actividad.hora_inicio,
+                actividad.id_actividad,
+            )
+        )
+        return future_pending_activities[0]
+
+    @staticmethod
+    def _build_countdown_label(remaining_time: timedelta) -> str:
+        total_seconds = max(int(remaining_time.total_seconds()), 0)
+        if total_seconds < 60:
+            return "Comienza en menos de un minuto."
+
+        total_minutes = total_seconds // 60
+        days, remaining_minutes = divmod(total_minutes, 60 * 24)
+        hours, minutes = divmod(remaining_minutes, 60)
+
+        parts: list[str] = []
+        if days:
+            parts.append(f"{days} dia" if days == 1 else f"{days} dias")
+        if hours:
+            parts.append(f"{hours} hora" if hours == 1 else f"{hours} horas")
+        if minutes:
+            parts.append(f"{minutes} minuto" if minutes == 1 else f"{minutes} minutos")
+
+        if not parts:
+            return "Comienza en menos de un minuto."
+        if len(parts) == 1:
+            prefix = "Falta" if parts[0].startswith("1 ") else "Faltan"
+            return f"{prefix} {parts[0]}."
+        if len(parts) == 2:
+            return f"Faltan {parts[0]} y {parts[1]}."
+
+        return f"Faltan {parts[0]}, {parts[1]} y {parts[2]}."
 
     def _build_month_weeks(
         self,

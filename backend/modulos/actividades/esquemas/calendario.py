@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, time
+from datetime import date, datetime, time
 
 from pydantic import BaseModel
 
@@ -62,3 +62,7 @@ class CalendarioAbrilData(BaseModel):
     weeks: list[CalendarioWeekRow]
     featured_activity: ActividadCalendarioData | None = None
     featured_activity_selection_rule: str | None = None
+    next_pending_activity: ActividadCalendarioData | None = None
+    next_pending_activity_selection_rule: str | None = None
+    next_pending_activity_countdown_label: str | None = None
+    next_pending_activity_starts_at: datetime | None = None

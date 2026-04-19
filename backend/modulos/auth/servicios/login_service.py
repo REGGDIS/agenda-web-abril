@@ -8,6 +8,7 @@ from typing import Protocol
 from fastapi import Depends, status
 from sqlalchemy.orm import Session
 
+from backend.app.config.settings import get_settings
 from backend.app.db.session import get_db
 from backend.modulos.auth.esquemas.login import (
     LoginRutResponse,
@@ -155,7 +156,11 @@ class AuthService:
 def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
     """Fabrica del servicio de auth para rutas FastAPI."""
 
+    settings = get_settings()
     usuario_repository = SqlAlchemyUsuarioRepository(db)
     sesion_repository = SqlAlchemySesionRepository(db)
-    sesion_service = SesionService(sesion_repository)
+    sesion_service = SesionService(
+        sesion_repository,
+        session_inactivity_minutes=settings.session_inactivity_minutes,
+    )
     return AuthService(usuario_repository, sesion_service)

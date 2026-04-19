@@ -167,4 +167,138 @@ document.addEventListener("DOMContentLoaded", () => {
       window.setInterval(refreshCountdown, 30000);
     }
   }
+
+  const body = document.body;
+  const sessionMonitorEnabled = body?.dataset.sessionMonitorEnabled === "true";
+
+  if (!sessionMonitorEnabled || !(body instanceof HTMLBodyElement)) {
+    return;
+  }
+
+  const sessionActivityUrl = body.dataset.sessionActivityUrl ?? "";
+  const sessionExpireUrl = body.dataset.sessionExpireUrl ?? "";
+  const sessionExpiredLoginUrl = body.dataset.sessionExpiredLoginUrl ?? "/login?session_expired=1";
+  const inactivityTimeoutMs = Number.parseInt(
+    body.dataset.sessionInactivityTimeoutMs ?? "",
+    10,
+  );
+  const activityThrottleMs = Number.parseInt(
+    body.dataset.sessionActivityThrottleMs ?? "",
+    10,
+  );
+
+  if (
+    !sessionActivityUrl ||
+    !sessionExpireUrl ||
+    Number.isNaN(inactivityTimeoutMs) ||
+    Number.isNaN(activityThrottleMs)
+  ) {
+    console.warn("Agenda Abril: configuracion incompleta del monitor de sesion.");
+    return;
+  }
+
+  let expirationTimerId = 0;
+  let lastActivitySentAt = 0;
+  let activityRequestInFlight = false;
+  let sessionClosureTriggered = false;
+
+  const redirectToExpiredLogin = () => {
+    if (sessionClosureTriggered) {
+      return;
+    }
+
+    sessionClosureTriggered = true;
+    window.location.assign(sessionExpiredLoginUrl);
+  };
+
+  const processSessionResponse = async (response) => {
+    let data = null;
+
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+
+    if (
+      !response.ok &&
+      data &&
+      typeof data.status === "string" &&
+      ["cookie_missing", "session_not_found", "session_inactive", "session_expired"].includes(data.status)
+    ) {
+      redirectToExpiredLogin();
+    }
+  };
+
+  const sendActivityPing = async () => {
+    if (activityRequestInFlight || sessionClosureTriggered) {
+      return;
+    }
+
+    activityRequestInFlight = true;
+    lastActivitySentAt = Date.now();
+
+    try {
+      const response = await fetch(sessionActivityUrl, {
+        method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        credentials: "same-origin",
+      });
+      await processSessionResponse(response);
+    } catch (error) {
+      console.warn("Agenda Abril session activity error:", error);
+    } finally {
+      activityRequestInFlight = false;
+    }
+  };
+
+  const expireSession = async () => {
+    if (sessionClosureTriggered) {
+      return;
+    }
+
+    try {
+      await fetch(sessionExpireUrl, {
+        method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        credentials: "same-origin",
+        keepalive: true,
+      });
+    } catch (error) {
+      console.warn("Agenda Abril session expiration error:", error);
+    } finally {
+      redirectToExpiredLogin();
+    }
+  };
+
+  const resetExpirationTimer = () => {
+    if (expirationTimerId) {
+      window.clearTimeout(expirationTimerId);
+    }
+    expirationTimerId = window.setTimeout(() => {
+      void expireSession();
+    }, inactivityTimeoutMs);
+  };
+
+  const registerUserActivity = () => {
+    if (sessionClosureTriggered) {
+      return;
+    }
+
+    resetExpirationTimer();
+
+    if (Date.now() - lastActivitySentAt >= activityThrottleMs) {
+      void sendActivityPing();
+    }
+  };
+
+  ["click", "keydown", "mousemove", "scroll"].forEach((eventName) => {
+    window.addEventListener(eventName, registerUserActivity, { passive: true });
+  });
+
+  resetExpirationTimer();
 });

@@ -26,7 +26,16 @@
     </script>
     <link rel="stylesheet" href="{{ request.url_for('static', path='css/base.css') }}">
   </head>
-  <body>
+  <body
+    data-session-monitor-enabled="{{ 'true' if session_monitor_enabled else 'false' }}"
+    {% if session_monitor_enabled %}
+    data-session-inactivity-timeout-ms="{{ session_inactivity_timeout_ms }}"
+    data-session-activity-throttle-ms="{{ session_activity_throttle_ms }}"
+    data-session-activity-url="{{ session_activity_url }}"
+    data-session-expire-url="{{ session_expire_url }}"
+    data-session-expired-login-url="{{ session_expired_login_url }}"
+    {% endif %}
+  >
     <header class="site-header">
       <div>
         <strong>{{ app_name }}</strong>

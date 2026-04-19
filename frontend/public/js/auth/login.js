@@ -6,6 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  const url = new URL(window.location.href);
+  if (url.searchParams.get("session_expired") === "1") {
+    resultNode.textContent = "La sesion se cerro por inactividad. Ingresa nuevamente.";
+    resultNode.dataset.state = "error";
+    url.searchParams.delete("session_expired");
+    window.history.replaceState({}, document.title, url.pathname || "/login");
+  }
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 

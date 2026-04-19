@@ -30,6 +30,10 @@ from backend.modulos.actividades.servicios import (
     get_actividad_edit_service,
 )
 from backend.modulos.sesiones.dependencias import get_current_session_result
+from backend.modulos.sesiones.helpers import (
+    build_login_redirect_response,
+    build_session_monitor_context,
+)
 from backend.modulos.sesiones.servicios import SesionResolutionResult
 
 
@@ -56,7 +60,7 @@ def actividad_create_view(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
-        return RedirectResponse(url="/login", status_code=303)
+        return build_login_redirect_response(session_result)
 
     try:
         create_view = actividad_create_service.prepare_form(
@@ -113,7 +117,7 @@ def actividad_create_submit(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
-        return RedirectResponse(url="/login", status_code=303)
+        return build_login_redirect_response(session_result)
 
     command = ActividadCreateCommand(
         actor_user_id=session_result.response.usuario.id_usuario,
@@ -195,7 +199,7 @@ def actividad_edit_view(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
-        return RedirectResponse(url="/login", status_code=303)
+        return build_login_redirect_response(session_result)
 
     try:
         edit_view = actividad_edit_service.prepare_form(
@@ -257,7 +261,7 @@ def actividad_edit_submit(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
-        return RedirectResponse(url="/login", status_code=303)
+        return build_login_redirect_response(session_result)
 
     command = ActividadEditCommand(
         actividad_id=actividad_id,
@@ -348,7 +352,7 @@ def actividad_delete_confirm_view(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
-        return RedirectResponse(url="/login", status_code=303)
+        return build_login_redirect_response(session_result)
 
     try:
         actividad_preview = actividad_delete_service.get_preview(
@@ -389,7 +393,7 @@ def actividad_delete_submit(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
-        return RedirectResponse(url="/login", status_code=303)
+        return build_login_redirect_response(session_result)
 
     try:
         actividad_delete_service.delete(
@@ -428,7 +432,7 @@ def actividad_detail_view(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
-        return RedirectResponse(url="/login", status_code=303)
+        return build_login_redirect_response(session_result)
 
     try:
         actividad = actividad_detail_service.get_detail(
@@ -459,6 +463,7 @@ def actividad_detail_view(
             "actividad": actividad,
             "usuario_actual": session_result.response.usuario,
             "actividad_actualizada": actualizada,
+            **build_session_monitor_context(),
         },
     )
 
@@ -494,6 +499,7 @@ def _render_activity_form_template(
             "submit_label": submit_label,
             "cancel_url": cancel_url,
             "back_url": back_url,
+            **build_session_monitor_context(),
         },
         status_code=status_code,
     )
@@ -514,6 +520,7 @@ def _render_delete_confirm_template(
             "page_title": "Eliminar actividad",
             "usuario_actual": session_result.response.usuario,
             "actividad_preview": actividad_preview,
+            **build_session_monitor_context(),
         },
     )
 

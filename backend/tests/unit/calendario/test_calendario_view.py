@@ -89,6 +89,51 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "Faltan 1 dia y 30 minutos." in response.text
     assert "Se selecciona la actividad pendiente futura mas cercana por fecha y hora de inicio." in response.text
     assert "/static/assets/sonidos/proxima-actividad-alerta.wav" in response.text
+    assert 'data-session-monitor-enabled="true"' in response.text
+    assert 'data-session-activity-url="/sesiones/actividad"' in response.text
+
+
+def test_calendario_redirects_to_login_with_expired_message_when_session_expired():
+    client = get_client()
+    client.app.dependency_overrides[get_current_session_result] = lambda: (
+        SesionResolutionResult(
+            http_status=401,
+            response=SesionActualResponse(
+                success=False,
+                status="session_expired",
+                message="Sesion expirada por inactividad.",
+                cookie_present=True,
+                session_found=True,
+                session_active=False,
+                ultimo_movimiento_actualizado=False,
+                ultimo_movimiento_anterior=datetime(2026, 4, 17, 10, 0, 0),
+                sesion={
+                    "id_sesion": 7,
+                    "id_usuario": 1,
+                    "fecha_inicio": datetime(2026, 4, 17, 9, 45, 0),
+                    "ultimo_movimiento": datetime(2026, 4, 17, 10, 0, 0),
+                    "fecha_cierre": datetime(2026, 4, 17, 10, 1, 0),
+                    "activa": False,
+                },
+                usuario={
+                    "id_usuario": 1,
+                    "nombre": "Administrador",
+                    "rut": "12.345.678-5",
+                    "id_rol": 1,
+                    "tema_preferido": "light",
+                    "activo": True,
+                },
+            ),
+        )
+    )
+
+    try:
+        response = client.get("/calendario", follow_redirects=False)
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login?session_expired=1"
 
 
 def test_calendario_renders_delete_feedback_message():

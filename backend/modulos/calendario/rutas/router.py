@@ -16,6 +16,10 @@ from backend.modulos.actividades.servicios import (
     get_actividad_checklist_service,
 )
 from backend.modulos.sesiones.dependencias import get_current_session_result
+from backend.modulos.sesiones.helpers import (
+    build_login_redirect_response,
+    build_session_monitor_context,
+)
 from backend.modulos.sesiones.servicios import SesionResolutionResult
 
 
@@ -45,7 +49,7 @@ def calendario_view(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
-        return RedirectResponse(url="/login", status_code=303)
+        return build_login_redirect_response(session_result)
 
     calendar_data = actividad_calendar_service.get_calendar_data(
         ActividadCalendarQuery(
@@ -73,6 +77,7 @@ def calendario_view(
             "calendar_data": calendar_data,
             "actividad_creada": actividad_creada,
             "actividad_eliminada": actividad_eliminada,
+            **build_session_monitor_context(),
         },
     )
 
@@ -91,7 +96,7 @@ def update_actividad_checklist(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
-        return RedirectResponse(url="/login", status_code=303)
+        return build_login_redirect_response(session_result)
 
     try:
         actividad_checklist_service.set_realizada(

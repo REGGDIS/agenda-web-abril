@@ -70,3 +70,20 @@ class SqlAlchemySesionRepository:
         if refreshed_session is None:
             raise LookupError("La sesion actualizada no pudo recargarse desde la base.")
         return refreshed_session
+
+    def close_session(
+        self,
+        sesion: Sesion,
+        *,
+        fecha_cierre: datetime,
+    ) -> Sesion:
+        sesion.fecha_cierre = fecha_cierre
+        sesion.activa = False
+        self._db.add(sesion)
+        self._db.commit()
+        refreshed_session = self._db.scalar(
+            self._get_by_token_statement(sesion.token_sesion)
+        )
+        if refreshed_session is None:
+            raise LookupError("La sesion cerrada no pudo recargarse desde la base.")
+        return refreshed_session

@@ -71,6 +71,8 @@ def test_actividad_create_view_renders_form():
     assert response.status_code == 200
     assert "Nueva actividad de abril" in response.text
     assert 'action="/actividades/nueva"' in response.text
+    assert 'action="/sesiones/cerrar"' in response.text
+    assert "Cerrar sesion" in response.text
     assert "Guardar actividad" in response.text
     assert "Trabajo" in response.text
 

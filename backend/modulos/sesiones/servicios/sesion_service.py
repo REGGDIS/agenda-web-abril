@@ -138,6 +138,37 @@ class SesionService:
             ),
         )
 
+    def close_session_from_token(self, token_sesion: str | None) -> SesionResolutionResult:
+        if token_sesion is None or not token_sesion.strip():
+            return self._build_cookie_missing_result()
+
+        sesion = self._sesion_repository.get_by_token(token_sesion)
+        if sesion is None:
+            return self._build_session_not_found_result()
+
+        if not sesion.activa:
+            return self._build_inactive_result(sesion)
+
+        closed_session = self._sesion_repository.close_session(
+            sesion,
+            fecha_cierre=datetime.now(),
+        )
+        return SesionResolutionResult(
+            http_status=status.HTTP_200_OK,
+            response=SesionActualResponse(
+                success=True,
+                status="session_closed",
+                message="La sesion fue cerrada correctamente.",
+                cookie_present=True,
+                session_found=True,
+                session_active=False,
+                ultimo_movimiento_actualizado=False,
+                ultimo_movimiento_anterior=sesion.ultimo_movimiento,
+                sesion=self._build_session_data(closed_session),
+                usuario=self._build_user_data(closed_session),
+            ),
+        )
+
     def _resolve_token_operation(
         self,
         token_sesion: str | None,

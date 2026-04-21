@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from backend.app.config.settings import get_settings
 from backend.modulos.sesiones.dependencias import get_current_session_result
@@ -69,5 +69,24 @@ def expire_current_session_by_inactivity(
         status_code=result.http_status,
         content=jsonable_encoder(result.response),
     )
+    response.delete_cookie(key=settings.session_cookie_name, path="/")
+    return response
+
+
+@router.post("/cerrar")
+def close_current_session(
+    request: Request,
+    sesion_service: SesionService = Depends(get_sesion_service),
+) -> RedirectResponse:
+    """Cierra manualmente la sesion actual y redirige al login."""
+
+    token_sesion = request.cookies.get(settings.session_cookie_name)
+    result = sesion_service.close_session_from_token(token_sesion)
+
+    login_url = "/login"
+    if result.response.status == "session_closed":
+        login_url = "/login?logout=1"
+
+    response = RedirectResponse(url=login_url, status_code=303)
     response.delete_cookie(key=settings.session_cookie_name, path="/")
     return response

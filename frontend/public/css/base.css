@@ -91,6 +91,44 @@ body {
   flex-wrap: wrap;
 }
 
+.site-session-panel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.35rem 0.45rem 0.35rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-overlay);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+}
+
+.site-session-user {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.logout-form {
+  margin: 0;
+}
+
+.logout-button {
+  min-height: 2.3rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--danger-border);
+  border-radius: 999px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.18s ease, transform 0.18s ease;
+}
+
+.logout-button:hover {
+  filter: brightness(0.98);
+  transform: translateY(-1px);
+}
+
 .site-nav {
   display: flex;
   gap: 1rem;
@@ -1291,6 +1329,11 @@ body {
   .theme-toggle {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .site-session-panel {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .calendar-summary-band {

@@ -64,6 +64,8 @@ def test_actividad_detail_renders_visible_information():
     assert "Trabajo" in response.text
     assert "Usuario Abril" in response.text
     assert "11.111.111-1" in response.text
+    assert 'action="/sesiones/cerrar"' in response.text
+    assert "Cerrar sesion" in response.text
     assert "/actividades/1/editar" in response.text
     assert "/actividades/1/eliminar" in response.text
 

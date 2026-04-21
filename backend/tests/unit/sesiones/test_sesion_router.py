@@ -140,6 +140,42 @@ class FakeSesionService:
             ),
         )
 
+    def close_session_from_token(
+        self,
+        token_sesion: str | None,
+    ) -> SesionResolutionResult:
+        self.last_operation = "close"
+        self.received_token = token_sesion
+        return SesionResolutionResult(
+            http_status=200,
+            response=SesionActualResponse(
+                success=True,
+                status="session_closed",
+                message="Sesion cerrada manualmente.",
+                cookie_present=True,
+                session_found=True,
+                session_active=False,
+                ultimo_movimiento_actualizado=False,
+                ultimo_movimiento_anterior=datetime(2026, 4, 15, 10, 0, 0),
+                sesion={
+                    "id_sesion": 9,
+                    "id_usuario": 1,
+                    "fecha_inicio": datetime(2026, 4, 15, 9, 59, 0),
+                    "ultimo_movimiento": datetime(2026, 4, 15, 10, 0, 0),
+                    "fecha_cierre": datetime(2026, 4, 15, 10, 2, 0),
+                    "activa": False,
+                },
+                usuario={
+                    "id_usuario": 1,
+                    "nombre": "Administrador",
+                    "rut": "12.345.678-5",
+                    "id_rol": 1,
+                    "tema_preferido": "light",
+                    "activo": True,
+                },
+            ),
+        )
+
 
 def test_current_session_route_returns_cookie_missing_without_cookie():
     client = get_client()
@@ -203,4 +239,23 @@ def test_expire_session_route_clears_cookie_and_returns_expired_status():
     assert fake_service.received_token == "token-valido"
     assert fake_service.last_operation == "expire"
     assert response.json()["status"] == "session_expired"
+    assert get_settings().session_cookie_name in response.headers.get("set-cookie", "")
+
+
+def test_close_session_route_redirects_to_login_and_clears_cookie():
+    client = get_client()
+    fake_service = FakeSesionService()
+    client.app.dependency_overrides[get_sesion_service] = lambda: fake_service
+    client.cookies.set(get_settings().session_cookie_name, "token-valido")
+
+    try:
+        response = client.post("/sesiones/cerrar", follow_redirects=False)
+    finally:
+        client.app.dependency_overrides.clear()
+        client.cookies.clear()
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login?logout=1"
+    assert fake_service.received_token == "token-valido"
+    assert fake_service.last_operation == "close"
     assert get_settings().session_cookie_name in response.headers.get("set-cookie", "")

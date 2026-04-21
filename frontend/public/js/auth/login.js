@@ -7,7 +7,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const url = new URL(window.location.href);
-  if (url.searchParams.get("session_expired") === "1") {
+  const consumeLoginMessage = (paramName, message, state) => {
+    if (url.searchParams.get(paramName) !== "1") {
+      return false;
+    }
+
+    resultNode.textContent = message;
+    resultNode.dataset.state = state;
+    url.searchParams.delete(paramName);
+    window.history.replaceState({}, document.title, url.pathname || "/login");
+    return true;
+  };
+
+  if (
+    !consumeLoginMessage(
+      "logout",
+      "La sesion fue cerrada correctamente.",
+      "success",
+    ) &&
+    url.searchParams.get("session_expired") === "1"
+  ) {
     resultNode.textContent = "La sesion se cerro por inactividad. Ingresa nuevamente.";
     resultNode.dataset.state = "error";
     url.searchParams.delete("session_expired");

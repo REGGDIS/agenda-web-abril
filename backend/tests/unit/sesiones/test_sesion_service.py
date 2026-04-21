@@ -259,3 +259,34 @@ def test_expire_session_from_token_closes_active_session():
     assert result.http_status == 401
     assert result.response.status == "session_expired"
     assert repository.closed_at is not None
+
+
+def test_close_session_from_token_closes_active_session_manually():
+    now = datetime.now()
+    repository = StubSesionRepository()
+    repository.session_by_token = FakeSesion(
+        id_sesion=12,
+        id_usuario=4,
+        token_sesion="token-cierre-manual",
+        fecha_inicio=now - timedelta(minutes=5),
+        ultimo_movimiento=now - timedelta(seconds=15),
+        fecha_cierre=None,
+        activa=True,
+        usuario=FakeUser(
+            id_usuario=4,
+            nombre="Usuario Manual",
+            rut="33.333.333-3",
+            id_rol=2,
+            tema_preferido="light",
+            activo=True,
+        ),
+    )
+    service = SesionService(repository, session_inactivity_minutes=1)
+
+    result = service.close_session_from_token("token-cierre-manual")
+
+    assert result.http_status == 200
+    assert result.response.status == "session_closed"
+    assert result.response.success is True
+    assert result.response.session_active is False
+    assert repository.closed_at is not None

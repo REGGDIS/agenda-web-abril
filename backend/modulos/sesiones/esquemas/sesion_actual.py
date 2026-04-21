@@ -38,6 +38,7 @@ class SesionActualResponse(BaseModel):
         "cookie_missing",
         "session_not_found",
         "session_inactive",
+        "session_closed",
         "session_expired",
         "session_valid",
     ]

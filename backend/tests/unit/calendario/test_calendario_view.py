@@ -71,6 +71,7 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "Administrador" in response.text
     assert "12.345.678-5" in response.text
     assert "Abril 2026" in response.text
+    assert "Organiza y gestiona tus actividades del mes de abril" in response.text
     assert "Lunes" in response.text
     assert "Reunion general" in response.text
     assert "10" in response.text

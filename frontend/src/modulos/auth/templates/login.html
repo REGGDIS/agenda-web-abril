@@ -15,10 +15,13 @@
         placeholder="12.345.678-5"
         autocomplete="username"
       >
-      <button type="submit">Validar ingreso</button>
+      <button id="login-submit-button" type="submit">Validar ingreso</button>
     </form>
 
     <div id="login-result" class="login-result" aria-live="polite"></div>
+    <div id="login-success-actions" class="login-success-actions" hidden>
+      <a href="/calendario" class="primary-action login-success-cta">Entrar al calendario</a>
+    </div>
   </div>
 </section>
 {% endblock %}

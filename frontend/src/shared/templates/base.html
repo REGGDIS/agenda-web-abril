@@ -4,6 +4,7 @@
 {% elif usuario_actual is defined and usuario_actual %}
   {% set current_user = usuario_actual %}
 {% endif %}
+{% set navigation_hidden = hide_primary_navigation if hide_primary_navigation is defined else false %}
 {% set preferred_theme = "light" %}
 {% if current_user and current_user.tema_preferido in ["light", "dark"] %}
   {% set preferred_theme = current_user.tema_preferido %}
@@ -45,16 +46,15 @@
     <header class="site-header">
       <div>
         <strong>{{ app_name }}</strong>
-        <p class="subtitle">Esqueleto inicial del proyecto</p>
+        <p class="subtitle">Organiza y gestiona tus actividades del mes de abril</p>
       </div>
       <div class="site-header-actions">
+        {% if not navigation_hidden and current_user %}
         <nav class="site-nav">
           <a href="/calendario">Inicio</a>
-          <a href="/actividades/nueva">Nueva actividad</a>
-          {% if not current_user %}
-          <a href="/login">Login</a>
-          {% endif %}
+          <a href="/actividades/nueva" class="site-nav-link site-nav-link-accent">Nueva actividad</a>
         </nav>
+        {% endif %}
         {% if current_user %}
         <div class="site-session-panel">
           <span class="site-session-user">{{ current_user.nombre }}</span>

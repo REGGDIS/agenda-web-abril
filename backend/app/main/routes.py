@@ -32,5 +32,6 @@ def login_view(request: Request):
             "request": request,
             "app_name": settings.app_name,
             "page_title": "Ingreso al sistema",
+            "hide_primary_navigation": True,
         },
     )

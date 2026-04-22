@@ -644,6 +644,28 @@ body {
   border-bottom: 1px solid var(--border-strong);
 }
 
+.month-cell-header-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 0.7rem 0.7rem 0 0;
+  margin: -0.15rem -0.15rem 0;
+  padding: 0.15rem 0.15rem 0.45rem;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.month-cell-header-link:hover,
+.month-cell-header-link:focus-visible {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.month-cell-header-link:focus-visible {
+  box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.18);
+}
+
 .day-number {
   font-size: 1rem;
   font-weight: 800;

@@ -186,10 +186,15 @@
           {% for cell in week.cells %}
           <article class="month-cell {{ 'padding-cell' if cell.is_padding else '' }} {{ 'has-events' if cell.total_actividades else 'empty-day' }}">
             {% if not cell.is_padding %}
-            <div class="month-cell-header">
+            <a
+              class="month-cell-header month-cell-header-link"
+              href="/actividades/nueva?fecha={{ cell.fecha.isoformat() }}"
+              aria-label="Crear actividad para el {{ cell.fecha.strftime('%d/%m/%Y') }}"
+              title="Crear actividad para el {{ cell.fecha.strftime('%d/%m/%Y') }}"
+            >
               <span class="day-number">{{ cell.day_number }}</span>
               <span class="day-activity-count">{{ cell.total_actividades }}</span>
-            </div>
+            </a>
 
             {% if cell.actividades %}
             <div class="day-activities">

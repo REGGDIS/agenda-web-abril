@@ -1,5 +1,7 @@
 """Rutas del modulo actividades."""
 
+from datetime import date
+
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -50,6 +52,7 @@ def actividades_status() -> dict[str, str]:
 @router.get("/nueva", response_class=HTMLResponse)
 def actividad_create_view(
     request: Request,
+    fecha: str | None = None,
     session_result: SesionResolutionResult = Depends(get_current_session_result),
     actividad_create_service: ActividadCreateService = Depends(
         get_actividad_create_service
@@ -67,7 +70,8 @@ def actividad_create_view(
             ActividadCreateFormQuery(
                 actor_user_id=session_result.response.usuario.id_usuario,
                 actor_role_id=session_result.response.usuario.id_rol,
-            )
+            ),
+            form_data=_build_prefilled_create_form_data(fecha),
         )
     except ActivityCreationPermissionDeniedError as exc:
         raise HTTPException(
@@ -529,3 +533,20 @@ def _parse_checkbox_flag(raw_value: str | None) -> bool:
     if raw_value is None:
         return False
     return raw_value.strip().lower() in {"1", "true", "on", "si", "sí"}
+
+
+def _build_prefilled_create_form_data(
+    raw_fecha: str | None,
+) -> ActividadCreateFormData | None:
+    if raw_fecha is None:
+        return None
+
+    try:
+        parsed_date = date.fromisoformat(raw_fecha.strip())
+    except ValueError:
+        return None
+
+    if parsed_date.month != settings.april_month:
+        return None
+
+    return ActividadCreateFormData(fecha_actividad=parsed_date.isoformat())

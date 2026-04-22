@@ -81,6 +81,24 @@ def test_actividad_create_view_renders_form():
     assert 'js/actividades/form.js' in response.text
 
 
+def test_actividad_create_view_prefills_date_from_query_param():
+    client = get_client()
+    fake_service = FakeCreateService()
+    client.app.dependency_overrides[get_current_session_result] = _valid_session_result
+    client.app.dependency_overrides[get_actividad_create_service] = lambda: fake_service
+
+    try:
+        response = client.get("/actividades/nueva?fecha=2026-04-20")
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert 'name="fecha_actividad"' in response.text
+    assert 'value="2026-04-20"' in response.text
+    assert fake_service.last_prepare_kwargs is not None
+    assert fake_service.last_prepare_kwargs["form_data"].fecha_actividad == "2026-04-20"
+
+
 def test_actividad_create_submit_redirects_to_calendar_on_success():
     client = get_client()
     fake_service = FakeCreateService()

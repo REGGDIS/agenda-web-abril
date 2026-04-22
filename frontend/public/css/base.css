@@ -24,6 +24,9 @@
   --mini-activity-bg: #ffffff;
   --input-bg: #f6f7fb;
   --overlay-bg: rgba(17, 24, 39, 0.46);
+  --login-illustration-shell: linear-gradient(180deg, #f4f7fb 0%, #eef3f8 100%);
+  --login-illustration-frame: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+  --login-illustration-shadow: 0 18px 38px rgba(31, 41, 55, 0.12);
   --shadow: 0 12px 30px rgba(31, 41, 55, 0.08);
 }
 
@@ -53,6 +56,9 @@ html[data-theme="dark"] {
   --mini-activity-bg: #182234;
   --input-bg: #0f172a;
   --overlay-bg: rgba(2, 6, 23, 0.72);
+  --login-illustration-shell: linear-gradient(180deg, rgba(30, 41, 59, 0.96) 0%, rgba(15, 23, 42, 0.92) 100%);
+  --login-illustration-frame: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.95));
+  --login-illustration-shadow: 0 22px 44px rgba(2, 6, 23, 0.38);
   --shadow: 0 16px 36px rgba(2, 6, 23, 0.42);
 }
 
@@ -1249,8 +1255,36 @@ body {
   line-height: 1.45;
 }
 
+.login-page {
+  max-width: 1160px;
+}
+
 .login-card {
-  max-width: 32rem;
+  max-width: 70rem;
+  padding: clamp(1.35rem, 2vw, 2rem);
+}
+
+.login-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.login-content {
+  max-width: 31rem;
+}
+
+.login-content h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2rem, 3.2vw, 2.65rem);
+  line-height: 1.02;
+}
+
+.login-lead {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 .login-form {
@@ -1318,6 +1352,28 @@ body {
   color: #b91c1c;
 }
 
+.login-illustration-panel {
+  padding: clamp(0.85rem, 1.8vw, 1.1rem);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--login-illustration-shell);
+}
+
+.login-illustration-frame {
+  overflow: hidden;
+  padding: clamp(0.75rem, 1.5vw, 1rem);
+  border-radius: 1rem;
+  background: var(--login-illustration-frame);
+  box-shadow: var(--login-illustration-shadow);
+}
+
+.login-illustration {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.7rem;
+}
+
 @media (max-width: 980px) {
   .calendar-headline {
     grid-template-columns: 1fr;
@@ -1338,6 +1394,19 @@ body {
   .delete-summary-grid,
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .login-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .login-content {
+    max-width: none;
+  }
+
+  .login-illustration-panel {
+    max-width: 42rem;
+    margin: 0 auto;
   }
 }
 
@@ -1361,6 +1430,15 @@ body {
   .site-session-panel {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .login-card {
+    padding: 1.25rem;
+  }
+
+  .login-form button,
+  .login-success-cta {
+    width: 100%;
   }
 
   .calendar-summary-band {

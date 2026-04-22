@@ -10,6 +10,8 @@ def test_login_view_hides_authenticated_navigation_and_keeps_theme_toggle():
 
     assert response.status_code == 200
     assert "Organiza y gestiona tus actividades del mes de abril" in response.text
+    assert "agenda-abril-logo.png" in response.text
+    assert "agenda-abril-favicon.png" in response.text
     assert "data-theme-toggle" in response.text
     assert '<nav class="site-nav">' not in response.text
     assert "/actividades/nueva" not in response.text

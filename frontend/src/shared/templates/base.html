@@ -15,6 +15,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title or app_name }}</title>
+    <link rel="icon" type="image/png" href="{{ request.url_for('static', path='images/branding/agenda-abril-favicon.png') }}">
     <script>
       (() => {
         const root = document.documentElement;
@@ -44,9 +45,16 @@
     {% endif %}
   >
     <header class="site-header">
-      <div>
-        <strong>{{ app_name }}</strong>
+      <div class="site-brand">
+        <img
+          class="site-brand-logo"
+          src="{{ request.url_for('static', path='images/branding/agenda-abril-logo.png') }}"
+          alt="Logo de Agenda Abril"
+        >
+        <div class="site-brand-copy">
+          <strong>{{ app_name }}</strong>
         <p class="subtitle">Organiza y gestiona tus actividades del mes de abril</p>
+        </div>
       </div>
       <div class="site-header-actions">
         {% if not navigation_hidden and current_user %}

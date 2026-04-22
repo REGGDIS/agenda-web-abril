@@ -72,6 +72,8 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "12.345.678-5" in response.text
     assert "Abril 2026" in response.text
     assert "Organiza y gestiona tus actividades del mes de abril" in response.text
+    assert "agenda-abril-logo.png" in response.text
+    assert "agenda-abril-favicon.png" in response.text
     assert "Lunes" in response.text
     assert "Reunion general" in response.text
     assert "10" in response.text
@@ -85,6 +87,9 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "/actividades/1" in response.text
     assert "Pendiente" in response.text
     assert "Actividad destacada del dia" in response.text
+    assert "Actividad pendiente" in response.text
+    assert "Actividad realizada" in response.text
+    assert "Categoria destacada" not in response.text
     assert 'data-theme-preference="light"' in response.text
     assert "data-theme-toggle" in response.text
     assert "Tema" in response.text

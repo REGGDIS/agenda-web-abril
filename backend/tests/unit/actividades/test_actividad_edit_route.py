@@ -91,6 +91,10 @@ def test_actividad_edit_view_renders_prefilled_form():
     assert 'action="/actividades/5/editar"' in response.text
     assert 'value="Reunion general"' in response.text
     assert "Guardar cambios" in response.text
+    assert "data-emoji-suggestion-select" in response.text
+    assert "data-emoji-input" in response.text
+    assert "data-category-select" in response.text
+    assert 'js/actividades/form.js' in response.text
     assert fake_service.last_query is not None
     assert fake_service.last_query.actividad_id == 5
 

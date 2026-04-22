@@ -75,6 +75,10 @@ def test_actividad_create_view_renders_form():
     assert "Cerrar sesion" in response.text
     assert "Guardar actividad" in response.text
     assert "Trabajo" in response.text
+    assert "data-emoji-suggestion-select" in response.text
+    assert "data-emoji-input" in response.text
+    assert "data-category-select" in response.text
+    assert 'js/actividades/form.js' in response.text
 
 
 def test_actividad_create_submit_redirects_to_calendar_on_success():

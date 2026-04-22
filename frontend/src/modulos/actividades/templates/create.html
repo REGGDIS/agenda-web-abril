@@ -101,13 +101,23 @@
 
         <label class="form-field">
           <span>Emoji</span>
-          <input
-            type="text"
-            name="emoji"
-            maxlength="20"
-            value="{{ create_view.form.emoji }}"
-            placeholder="📚"
-          >
+          <div class="emoji-input-row">
+            <input
+              type="text"
+              name="emoji"
+              data-emoji-input
+              maxlength="20"
+              value="{{ create_view.form.emoji }}"
+              placeholder="📚"
+            >
+            <select
+              class="emoji-suggestion-select"
+              data-emoji-suggestion-select
+              aria-label="Sugerencias de emoji por categoria"
+            >
+              <option value="">Elegir</option>
+            </select>
+          </div>
         </label>
 
         <label class="form-field">
@@ -123,7 +133,7 @@
 
         <label class="form-field">
           <span>Categoria *</span>
-          <select name="id_categoria" required>
+          <select name="id_categoria" data-category-select required>
             <option value="">Selecciona una categoria</option>
             {% for categoria in create_view.categorias %}
             <option
@@ -182,4 +192,8 @@
     </form>
   </article>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ request.url_for('static', path='js/actividades/form.js') }}" defer></script>
 {% endblock %}

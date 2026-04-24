@@ -4,8 +4,10 @@ export const mockActivities: Activity[] = [
   {
     id: 'act-01',
     title: 'Reunion de coordinacion',
+    description: 'Actividad local de ejemplo para revisar la coordinacion semanal.',
     dateLabel: 'Lunes 8 de abril',
     timeLabel: '09:30',
+    endTimeLabel: '10:30',
     place: 'Sala principal',
     categoryLabel: 'Coordinacion',
     emoji: '📌',
@@ -14,8 +16,10 @@ export const mockActivities: Activity[] = [
   {
     id: 'act-02',
     title: 'Revision de checklist semanal',
+    description: 'Actividad local de ejemplo para validar tareas realizadas.',
     dateLabel: 'Jueves 11 de abril',
     timeLabel: '12:00',
+    endTimeLabel: '12:45',
     place: 'Oficina central',
     categoryLabel: 'Checklist',
     emoji: '✅',
@@ -24,8 +28,10 @@ export const mockActivities: Activity[] = [
   {
     id: 'act-03',
     title: 'Preparar actividad comunitaria',
+    description: 'Actividad local de ejemplo para preparar materiales y responsables.',
     dateLabel: 'Martes 16 de abril',
     timeLabel: '15:45',
+    endTimeLabel: '17:00',
     place: 'Centro de actividades',
     categoryLabel: 'Comunidad',
     emoji: '🤝',

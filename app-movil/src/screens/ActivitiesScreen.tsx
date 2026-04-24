@@ -5,6 +5,7 @@ import { ActivityCard } from '../components/ActivityCard';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { isBackendConfigured } from '../config/environment';
 import { listAprilActivities } from '../services/activitiesService';
+import { ActivityDetailScreen } from './ActivityDetailScreen';
 import { colors, radius, spacing } from '../styles/theme';
 import type { Activity } from '../types/activity';
 import type { MobileAuthSession } from '../types/auth';
@@ -16,6 +17,7 @@ type ActivitiesScreenProps = {
 
 export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProps) {
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -43,6 +45,15 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
   }, [loadActivities]);
 
   const pendingCount = activities.filter((activity) => activity.status === 'pending').length;
+
+  if (selectedActivity) {
+    return (
+      <ActivityDetailScreen
+        activity={selectedActivity}
+        onBack={() => setSelectedActivity(null)}
+      />
+    );
+  }
 
   return (
     <View style={styles.screen}>
@@ -96,7 +107,9 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
           contentContainerStyle={styles.listContent}
           data={activities}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ActivityCard activity={item} />}
+          renderItem={({ item }) => (
+            <ActivityCard activity={item} onPress={setSelectedActivity} />
+          )}
         />
       )}
 

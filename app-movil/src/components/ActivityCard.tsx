@@ -1,17 +1,27 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing } from '../styles/theme';
 import type { Activity } from '../types/activity';
 
 type ActivityCardProps = {
   activity: Activity;
+  onPress?: (activity: Activity) => void;
 };
 
-export function ActivityCard({ activity }: ActivityCardProps) {
+export function ActivityCard({ activity, onPress }: ActivityCardProps) {
   const isDone = activity.status === 'done';
 
   return (
-    <View style={[styles.card, isDone ? styles.doneCard : styles.pendingCard]}>
+    <Pressable
+      accessibilityHint="Abre el detalle de la actividad"
+      accessibilityRole="button"
+      onPress={() => onPress?.(activity)}
+      style={({ pressed }) => [
+        styles.card,
+        isDone ? styles.doneCard : styles.pendingCard,
+        pressed && styles.pressed,
+      ]}
+    >
       <View style={styles.header}>
         <Text style={styles.title}>{activity.title}</Text>
         <View style={[styles.badge, isDone ? styles.doneBadge : styles.pendingBadge]}>
@@ -28,7 +38,7 @@ export function ActivityCard({ activity }: ActivityCardProps) {
         </Text>
       ) : null}
       <Text style={styles.place}>{activity.place}</Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -40,6 +50,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     padding: spacing.md,
+  },
+  pressed: {
+    opacity: 0.82,
   },
   pendingCard: {
     borderLeftColor: colors.accent,

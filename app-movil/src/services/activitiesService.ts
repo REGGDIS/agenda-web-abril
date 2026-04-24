@@ -15,8 +15,10 @@ function mapApiActivityToActivity(activity: ApiActivity): Activity {
   return {
     id: String(activity.id_actividad),
     title: activity.titulo,
+    description: activity.descripcion,
     dateLabel: formatDateLabel(activity.fecha_actividad),
     timeLabel: formatTimeLabel(activity.hora_inicio),
+    endTimeLabel: formatTimeLabel(activity.hora_fin),
     place: activity.lugar?.trim() || 'Sin lugar definido',
     categoryLabel: activity.categoria_nombre,
     emoji: activity.emoji,

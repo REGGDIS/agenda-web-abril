@@ -3,8 +3,10 @@ export type ActivityStatus = 'pending' | 'done';
 export type Activity = {
   id: string;
   title: string;
+  description: string | null;
   dateLabel: string;
   timeLabel: string;
+  endTimeLabel: string;
   place: string;
   categoryLabel: string | null;
   emoji: string | null;

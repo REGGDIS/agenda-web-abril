@@ -68,3 +68,12 @@ class CalendarioAbrilData(BaseModel):
     next_pending_activity_starts_at: datetime | None = None
     next_pending_activity_alert_active: bool = False
     next_pending_activity_alert_message: str | None = None
+
+
+class CalendarioActividadesJsonResponse(BaseModel):
+    """Listado plano de actividades visibles para clientes moviles."""
+
+    success: bool
+    visible_for_all_users: bool
+    total_actividades: int
+    actividades: list[ActividadCalendarioData]

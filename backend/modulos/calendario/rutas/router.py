@@ -1,10 +1,12 @@
 """Rutas controladas para la vista principal del calendario."""
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from backend.app.config.settings import get_settings
+from backend.modulos.actividades.esquemas import CalendarioActividadesJsonResponse
 from backend.modulos.actividades.servicios import (
     ActividadCalendarQuery,
     ActividadCalendarService,
@@ -31,6 +33,57 @@ templates = Jinja2Templates(directory=str(settings.templates_dir))
 @router.get("/status")
 def calendario_status() -> dict[str, str]:
     return {"module": "calendario", "status": "placeholder"}
+
+
+@router.get("/actividades", response_model=CalendarioActividadesJsonResponse)
+def calendario_actividades_json(
+    session_result: SesionResolutionResult = Depends(get_current_session_result),
+    actividad_calendar_service: ActividadCalendarService = Depends(
+        get_actividad_calendar_service
+    ),
+) -> JSONResponse:
+    """Entrega actividades visibles de abril para clientes moviles."""
+
+    if (
+        not session_result.response.success
+        or session_result.response.usuario is None
+        or session_result.response.sesion is None
+    ):
+        response = JSONResponse(
+            status_code=session_result.http_status,
+            content=jsonable_encoder(
+                {
+                    "success": False,
+                    "status": session_result.response.status,
+                    "message": session_result.response.message,
+                    "actividades": [],
+                }
+            ),
+        )
+        response.delete_cookie(key=settings.session_cookie_name, path="/")
+        return response
+
+    calendar_data = actividad_calendar_service.get_calendar_data(
+        ActividadCalendarQuery(
+            user_id=session_result.response.usuario.id_usuario,
+            role_id=session_result.response.usuario.id_rol,
+        )
+    )
+    actividades = [
+        actividad
+        for day_block in calendar_data.day_blocks
+        for actividad in day_block.actividades
+    ]
+    response_data = CalendarioActividadesJsonResponse(
+        success=True,
+        visible_for_all_users=calendar_data.visible_for_all_users,
+        total_actividades=len(actividades),
+        actividades=actividades,
+    )
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=jsonable_encoder(response_data),
+    )
 
 
 @router.get("", response_class=HTMLResponse)

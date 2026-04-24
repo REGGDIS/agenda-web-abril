@@ -25,38 +25,48 @@ def test_calendario_redirects_to_login_when_session_is_invalid():
     assert response.headers["location"] == "/login"
 
 
+def test_calendario_actividades_json_returns_visible_activities():
+    client = get_client()
+    client.app.dependency_overrides[get_current_session_result] = lambda: (
+        _valid_session_result()
+    )
+    client.app.dependency_overrides[get_actividad_calendar_service] = lambda: (
+        _FakeActividadCalendarService()
+    )
+
+    try:
+        response = client.get("/calendario/actividades")
+    finally:
+        client.app.dependency_overrides.clear()
+
+    data = response.json()
+    assert response.status_code == 200
+    assert data["success"] is True
+    assert data["visible_for_all_users"] is True
+    assert data["total_actividades"] == 1
+    assert data["actividades"][0]["id_actividad"] == 1
+    assert data["actividades"][0]["titulo"] == "Reunion general"
+    assert data["actividades"][0]["fecha_actividad"] == "2026-04-10"
+    assert data["actividades"][0]["hora_inicio"] == "09:00:00"
+    assert data["actividades"][0]["categoria_nombre"] == "Trabajo"
+    assert data["actividades"][0]["realizada"] is False
+
+
+def test_calendario_actividades_json_returns_session_error_when_invalid():
+    client = get_client()
+
+    response = client.get("/calendario/actividades")
+
+    data = response.json()
+    assert response.status_code == 401
+    assert data["success"] is False
+    assert data["actividades"] == []
+
+
 def test_calendario_renders_logged_user_when_session_is_valid():
     client = get_client()
     client.app.dependency_overrides[get_current_session_result] = lambda: (
-        SesionResolutionResult(
-            http_status=200,
-            response=SesionActualResponse(
-                success=True,
-                status="session_valid",
-                message="Sesion valida.",
-                cookie_present=True,
-                session_found=True,
-                session_active=True,
-                ultimo_movimiento_actualizado=True,
-                ultimo_movimiento_anterior=datetime(2026, 4, 17, 10, 0, 0),
-                sesion={
-                    "id_sesion": 7,
-                    "id_usuario": 1,
-                    "fecha_inicio": datetime(2026, 4, 17, 9, 45, 0),
-                    "ultimo_movimiento": datetime(2026, 4, 17, 10, 1, 0),
-                    "fecha_cierre": None,
-                    "activa": True,
-                },
-                usuario={
-                    "id_usuario": 1,
-                    "nombre": "Administrador",
-                    "rut": "12.345.678-5",
-                    "id_rol": 1,
-                    "tema_preferido": "light",
-                    "activo": True,
-                },
-            ),
-        )
+        _valid_session_result()
     )
     client.app.dependency_overrides[get_actividad_calendar_service] = lambda: (
         _FakeActividadCalendarService()
@@ -235,6 +245,38 @@ def test_calendario_renders_empty_next_activity_message():
 
     assert response.status_code == 200
     assert "No hay proximas actividades pendientes dentro del alcance visible para esta sesion." in response.text
+
+
+def _valid_session_result() -> SesionResolutionResult:
+    return SesionResolutionResult(
+        http_status=200,
+        response=SesionActualResponse(
+            success=True,
+            status="session_valid",
+            message="Sesion valida.",
+            cookie_present=True,
+            session_found=True,
+            session_active=True,
+            ultimo_movimiento_actualizado=True,
+            ultimo_movimiento_anterior=datetime(2026, 4, 17, 10, 0, 0),
+            sesion={
+                "id_sesion": 7,
+                "id_usuario": 1,
+                "fecha_inicio": datetime(2026, 4, 17, 9, 45, 0),
+                "ultimo_movimiento": datetime(2026, 4, 17, 10, 1, 0),
+                "fecha_cierre": None,
+                "activa": True,
+            },
+            usuario={
+                "id_usuario": 1,
+                "nombre": "Administrador",
+                "rut": "12.345.678-5",
+                "id_rol": 1,
+                "tema_preferido": "light",
+                "activo": True,
+            },
+        ),
+    )
 
 
 class _FakeActividadCalendarService:

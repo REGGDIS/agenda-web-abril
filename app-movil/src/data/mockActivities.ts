@@ -7,6 +7,8 @@ export const mockActivities: Activity[] = [
     dateLabel: 'Lunes 8 de abril',
     timeLabel: '09:30',
     place: 'Sala principal',
+    categoryLabel: 'Coordinacion',
+    emoji: '📌',
     status: 'pending',
   },
   {
@@ -15,6 +17,8 @@ export const mockActivities: Activity[] = [
     dateLabel: 'Jueves 11 de abril',
     timeLabel: '12:00',
     place: 'Oficina central',
+    categoryLabel: 'Checklist',
+    emoji: '✅',
     status: 'done',
   },
   {
@@ -23,6 +27,8 @@ export const mockActivities: Activity[] = [
     dateLabel: 'Martes 16 de abril',
     timeLabel: '15:45',
     place: 'Centro de actividades',
+    categoryLabel: 'Comunidad',
+    emoji: '🤝',
     status: 'pending',
   },
 ];

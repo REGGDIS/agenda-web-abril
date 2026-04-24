@@ -2,6 +2,7 @@
 
 from backend.modulos.actividades.esquemas.calendario import (
     ActividadCalendarioData,
+    CalendarioActividadesJsonResponse,
     CalendarioAbrilData,
     CalendarioDayBlock,
     CalendarioMonthCell,
@@ -24,6 +25,7 @@ __all__ = [
     "ActividadCreateViewData",
     "ActividadUpdateResult",
     "ActividadDetalleData",
+    "CalendarioActividadesJsonResponse",
     "CalendarioAbrilData",
     "CalendarioDayBlock",
     "CalendarioMonthCell",

@@ -1,6 +1,6 @@
 # Agenda Abril Movil
 
-V1 inicial de la app movil con Expo y TypeScript. La Iteracion 2 conecta el login por RUT con el backend real y mantiene las actividades con datos mock locales.
+V1 inicial de la app movil con Expo y TypeScript. La Iteracion 2 conecta el login por RUT con el backend real y la Iteracion 3 carga actividades reales visibles desde la API.
 
 ## Configurar backend para Expo Go
 
@@ -35,6 +35,6 @@ Luego escanea el QR con Expo Go.
 ## Alcance actual
 
 - Login real contra `POST /auth/login`.
-- Pantalla "Mis actividades de abril" con datos locales.
+- Pantalla "Mis actividades de abril" con `GET /calendario/actividades`.
 - Navegacion minima por estado dentro de `App.tsx`.
 - Configuracion preparada para una futura URL de backend en `src/config/environment.ts`.

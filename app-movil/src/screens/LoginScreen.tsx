@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import { PrimaryButton } from '../components/PrimaryButton';
 import { loginWithRut } from '../services/authService';
@@ -35,42 +43,47 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.screen}
     >
-      <View style={styles.brandBlock}>
-        <View style={styles.logoMark}>
-          <Text style={styles.logoText}>AA</Text>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.brandBlock}>
+          <View style={styles.logoMark}>
+            <Text style={styles.logoText}>AA</Text>
+          </View>
+          <Text style={styles.kicker}>Agenda Abril Movil</Text>
+          <Text style={styles.title}>Ingreso a Agenda Abril</Text>
+          <Text style={styles.subtitle}>
+            Ingresa con tu RUT para crear una sesion real en el backend.
+          </Text>
         </View>
-        <Text style={styles.kicker}>Agenda Abril Movil</Text>
-        <Text style={styles.title}>Ingreso a Agenda Abril</Text>
-        <Text style={styles.subtitle}>
-          Ingresa con tu RUT para crear una sesion real en el backend.
-        </Text>
-      </View>
 
-      <View style={styles.form}>
-        <Text style={styles.label}>RUT</Text>
-        <TextInput
-          autoCapitalize="characters"
-          editable={!isLoading}
-          keyboardType="default"
-          onChangeText={setRut}
-          onSubmitEditing={handleSubmit}
-          placeholder="12.345.678-5"
-          placeholderTextColor={colors.muted}
-          returnKeyType="send"
-          style={styles.input}
-          value={rut}
-        />
-        <Text style={styles.helper}>
-          La app usa el backend configurado para Expo Go; las actividades siguen siendo mock.
-        </Text>
-        {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-        <PrimaryButton disabled={isLoading || !rut.trim()} onPress={handleSubmit}>
-          {isLoading ? 'Validando...' : 'Validar ingreso'}
-        </PrimaryButton>
-      </View>
+        <View style={styles.form}>
+          <Text style={styles.label}>RUT</Text>
+          <TextInput
+            autoCapitalize="characters"
+            editable={!isLoading}
+            keyboardType="default"
+            onChangeText={setRut}
+            onSubmitEditing={handleSubmit}
+            placeholder="12.345.678-5"
+            placeholderTextColor={colors.muted}
+            returnKeyType="send"
+            style={styles.input}
+            value={rut}
+          />
+          <Text style={styles.helper}>
+            La app usa el backend configurado para Expo Go; las actividades siguen siendo mock.
+          </Text>
+          {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+          <PrimaryButton disabled={isLoading || !rut.trim()} onPress={handleSubmit}>
+            {isLoading ? 'Validando...' : 'Validar ingreso'}
+          </PrimaryButton>
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -78,8 +91,12 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     padding: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   brandBlock: {
     marginBottom: spacing.xl,

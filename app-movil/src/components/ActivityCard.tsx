@@ -22,6 +22,11 @@ export function ActivityCard({ activity }: ActivityCardProps) {
       </View>
 
       <Text style={styles.meta}>{activity.dateLabel} · {activity.timeLabel}</Text>
+      {activity.categoryLabel || activity.emoji ? (
+        <Text style={styles.category}>
+          {activity.emoji ? `${activity.emoji} ` : ''}{activity.categoryLabel ?? 'Sin categoria'}
+        </Text>
+      ) : null}
       <Text style={styles.place}>{activity.place}</Text>
     </View>
   );
@@ -83,6 +88,12 @@ const styles = StyleSheet.create({
   place: {
     color: colors.muted,
     fontSize: 14,
+    marginTop: spacing.xs,
+  },
+  category: {
+    color: colors.accentStrong,
+    fontSize: 13,
+    fontWeight: '700',
     marginTop: spacing.xs,
   },
 });

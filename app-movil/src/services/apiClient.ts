@@ -16,6 +16,7 @@ export async function apiRequest<TResponse>(
   options: RequestInit = {},
 ): Promise<TResponse> {
   const response = await fetch(buildApiUrl(path), {
+    credentials: 'include',
     ...options,
     headers: {
       Accept: 'application/json',

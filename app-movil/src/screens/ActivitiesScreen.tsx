@@ -5,12 +5,14 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { mockActivities } from '../data/mockActivities';
 import { isBackendConfigured } from '../config/environment';
 import { colors, radius, spacing } from '../styles/theme';
+import type { MobileAuthSession } from '../types/auth';
 
 type ActivitiesScreenProps = {
+  authSession: MobileAuthSession | null;
   onLogout: () => void;
 };
 
-export function ActivitiesScreen({ onLogout }: ActivitiesScreenProps) {
+export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProps) {
   const pendingCount = mockActivities.filter((activity) => activity.status === 'pending').length;
 
   return (
@@ -19,7 +21,11 @@ export function ActivitiesScreen({ onLogout }: ActivitiesScreenProps) {
         <View>
           <Text style={styles.kicker}>Abril</Text>
           <Text style={styles.title}>Mis actividades de abril</Text>
-          <Text style={styles.subtitle}>Datos mock locales para validar la base movil.</Text>
+          <Text style={styles.subtitle}>
+            {authSession
+              ? `Sesion iniciada como ${authSession.usuario.nombre} (${authSession.rutNormalizado}).`
+              : 'Datos mock locales para validar la base movil.'}
+          </Text>
         </View>
       </View>
 

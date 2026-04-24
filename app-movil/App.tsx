@@ -5,19 +5,31 @@ import { SafeAreaView, StyleSheet } from 'react-native';
 import { ActivitiesScreen } from './src/screens/ActivitiesScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { colors } from './src/styles/theme';
+import type { MobileAuthSession } from './src/types/auth';
 
 type AppRoute = 'login' | 'activities';
 
 export default function App() {
   const [route, setRoute] = useState<AppRoute>('login');
+  const [authSession, setAuthSession] = useState<MobileAuthSession | null>(null);
+
+  const handleLoginSuccess = (session: MobileAuthSession) => {
+    setAuthSession(session);
+    setRoute('activities');
+  };
+
+  const handleLogout = () => {
+    setAuthSession(null);
+    setRoute('login');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       {route === 'login' ? (
-        <LoginScreen onEnterDemo={() => setRoute('activities')} />
+        <LoginScreen onLoginSuccess={handleLoginSuccess} />
       ) : (
-        <ActivitiesScreen onLogout={() => setRoute('login')} />
+        <ActivitiesScreen authSession={authSession} onLogout={handleLogout} />
       )}
     </SafeAreaView>
   );

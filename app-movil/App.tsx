@@ -4,6 +4,7 @@ import { SafeAreaView, StyleSheet } from 'react-native';
 
 import { ActivitiesScreen } from './src/screens/ActivitiesScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
+import { logoutMobileSession } from './src/services/authService';
 import { colors } from './src/styles/theme';
 import type { MobileAuthSession } from './src/types/auth';
 
@@ -18,9 +19,13 @@ export default function App() {
     setRoute('activities');
   };
 
-  const handleLogout = () => {
-    setAuthSession(null);
-    setRoute('login');
+  const handleLogout = async () => {
+    try {
+      await logoutMobileSession();
+    } finally {
+      setAuthSession(null);
+      setRoute('login');
+    }
   };
 
   return (

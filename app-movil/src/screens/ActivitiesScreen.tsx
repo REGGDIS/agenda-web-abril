@@ -12,13 +12,14 @@ import type { MobileAuthSession } from '../types/auth';
 
 type ActivitiesScreenProps = {
   authSession: MobileAuthSession | null;
-  onLogout: () => void;
+  onLogout: () => Promise<void>;
 };
 
 export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProps) {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const loadActivities = useCallback(async () => {
@@ -64,6 +65,11 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
     [],
   );
 
+  const handleLogoutPress = useCallback(async () => {
+    setIsLoggingOut(true);
+    await onLogout();
+  }, [onLogout]);
+
   const pendingCount = activities.filter((activity) => activity.status === 'pending').length;
 
   if (selectedActivity) {
@@ -85,7 +91,7 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
           <Text style={styles.subtitle}>
             {authSession
               ? `Sesion iniciada como ${authSession.usuario.nombre} (${authSession.rutNormalizado}).`
-              : 'Datos mock locales para validar la base movil.'}
+              : 'Inicia sesion para cargar tus actividades reales.'}
           </Text>
         </View>
       </View>
@@ -100,7 +106,7 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
           <Text style={styles.summaryLabel}>Pendientes</Text>
         </View>
         <View style={styles.summaryItem}>
-          <Text style={styles.summaryValue}>{isBackendConfigured ? 'API' : 'Mock'}</Text>
+          <Text style={styles.summaryValue}>{isBackendConfigured ? 'API' : 'Local'}</Text>
           <Text style={styles.summaryLabel}>Origen</Text>
         </View>
       </View>
@@ -135,7 +141,9 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
       )}
 
       <View style={styles.footer}>
-        <PrimaryButton onPress={onLogout} variant="secondary">Salir de demo</PrimaryButton>
+        <PrimaryButton disabled={isLoggingOut} onPress={handleLogoutPress} variant="secondary">
+          {isLoggingOut ? 'Cerrando...' : 'Cerrar sesión'}
+        </PrimaryButton>
       </View>
     </View>
   );
@@ -196,7 +204,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     gap: spacing.md,
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.lg,
   },
   stateBox: {
     backgroundColor: colors.surface,
@@ -224,6 +232,7 @@ const styles = StyleSheet.create({
   footer: {
     borderColor: colors.border,
     borderTopWidth: 1,
-    paddingVertical: spacing.md,
+    paddingBottom: spacing.xl,
+    paddingTop: spacing.md,
   },
 });

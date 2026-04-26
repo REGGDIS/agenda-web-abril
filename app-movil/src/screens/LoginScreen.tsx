@@ -76,7 +76,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             value={rut}
           />
           <Text style={styles.helper}>
-            La app usa el backend configurado para Expo Go; las actividades siguen siendo mock.
+            La app usa el backend configurado para Expo Go y carga actividades reales.
           </Text>
           {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
           <PrimaryButton disabled={isLoading || !rut.trim()} onPress={handleSubmit}>

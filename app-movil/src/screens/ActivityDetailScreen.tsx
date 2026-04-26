@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
   },
   content: {
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.lg,
   },
   kicker: {
     color: colors.accentStrong,
@@ -168,7 +168,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderTopWidth: 1,
     gap: spacing.sm,
-    paddingVertical: spacing.md,
+    paddingBottom: spacing.xl,
+    paddingTop: spacing.md,
   },
   errorText: {
     color: colors.danger,

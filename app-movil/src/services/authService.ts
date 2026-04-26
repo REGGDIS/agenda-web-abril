@@ -1,5 +1,5 @@
 import { isBackendConfigured } from '../config/environment';
-import { apiRequest } from './apiClient';
+import { apiRequest, buildApiUrl } from './apiClient';
 import type { LoginRutResponse, MobileAuthSession } from '../types/auth';
 
 export async function loginWithRut(rut: string): Promise<MobileAuthSession> {
@@ -28,4 +28,16 @@ export async function loginWithRut(rut: string): Promise<MobileAuthSession> {
     usuario: data.usuario,
     sesion: data.sesion,
   };
+}
+
+export async function logoutMobileSession(): Promise<void> {
+  if (!isBackendConfigured) {
+    return;
+  }
+
+  await fetch(buildApiUrl('/sesiones/cerrar'), {
+    credentials: 'include',
+    method: 'POST',
+    redirect: 'manual',
+  });
 }

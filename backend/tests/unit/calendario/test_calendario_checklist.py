@@ -52,6 +52,32 @@ def test_calendario_checklist_updates_activity_and_redirects():
     assert fake_service.last_command.realizada is True
 
 
+def test_calendario_checklist_returns_json_when_requested_by_mobile_client():
+    client = get_client()
+    fake_service = FakeChecklistService()
+    client.app.dependency_overrides[get_current_session_result] = _valid_session_result
+    client.app.dependency_overrides[get_actividad_checklist_service] = lambda: fake_service
+
+    try:
+        response = client.post(
+            "/calendario/actividades/8/realizada",
+            data={"realizada": "false"},
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "success": True,
+        "message": "Estado de actividad actualizado.",
+        "id_actividad": 8,
+        "realizada": False,
+    }
+    assert fake_service.last_command is not None
+    assert fake_service.last_command.realizada is False
+
+
 def test_calendario_checklist_redirects_to_login_when_session_is_invalid():
     client = get_client()
     client.app.dependency_overrides[get_current_session_result] = _invalid_session_result
@@ -67,6 +93,24 @@ def test_calendario_checklist_redirects_to_login_when_session_is_invalid():
 
     assert response.status_code == 303
     assert response.headers["location"] == "/login"
+
+
+def test_calendario_checklist_returns_json_error_when_mobile_session_is_invalid():
+    client = get_client()
+    client.app.dependency_overrides[get_current_session_result] = _invalid_session_result
+
+    try:
+        response = client.post(
+            "/calendario/actividades/8/realizada",
+            data={"realizada": "true"},
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 401
+    assert response.json()["success"] is False
+    assert response.json()["message"] == "Sin cookie."
 
 
 def test_calendario_checklist_returns_403_for_forbidden_activity():

@@ -1,5 +1,11 @@
 import { apiRequest } from './apiClient';
-import type { ActivitiesResponse, Activity, ApiActivity } from '../types/activity';
+import type {
+  ActivitiesResponse,
+  Activity,
+  ActivityStatus,
+  ActivityStatusUpdateResponse,
+  ApiActivity,
+} from '../types/activity';
 
 export async function listAprilActivities(): Promise<Activity[]> {
   const data = await apiRequest<ActivitiesResponse>('/calendario/actividades');
@@ -9,6 +15,31 @@ export async function listAprilActivities(): Promise<Activity[]> {
   }
 
   return data.actividades.map(mapApiActivityToActivity);
+}
+
+export async function updateActivityStatus(
+  activityId: string,
+  status: ActivityStatus,
+): Promise<ActivityStatus> {
+  const realizada = status === 'done';
+  const data = await apiRequest<ActivityStatusUpdateResponse>(
+    `/calendario/actividades/${activityId}/realizada`,
+    {
+      body: `realizada=${realizada ? 'true' : 'false'}`,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      method: 'POST',
+    },
+  );
+
+  if (!data.success || typeof data.realizada !== 'boolean') {
+    throw new Error(
+      data.message || data.detail || 'No fue posible actualizar la actividad.',
+    );
+  }
+
+  return data.realizada ? 'done' : 'pending';
 }
 
 function mapApiActivityToActivity(activity: ApiActivity): Activity {

@@ -1,16 +1,42 @@
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, radius, spacing } from '../styles/theme';
-import type { Activity } from '../types/activity';
+import type { Activity, ActivityStatus } from '../types/activity';
 
 type ActivityDetailScreenProps = {
   activity: Activity;
   onBack: () => void;
+  onStatusChange: (activityId: string, nextStatus: ActivityStatus) => Promise<void>;
 };
 
-export function ActivityDetailScreen({ activity, onBack }: ActivityDetailScreenProps) {
+export function ActivityDetailScreen({
+  activity,
+  onBack,
+  onStatusChange,
+}: ActivityDetailScreenProps) {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const isDone = activity.status === 'done';
+  const nextStatus: ActivityStatus = isDone ? 'pending' : 'done';
+
+  async function handleStatusChange() {
+    setIsUpdating(true);
+    setErrorMessage('');
+
+    try {
+      await onStatusChange(activity.id, nextStatus);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible actualizar la actividad.',
+      );
+    } finally {
+      setIsUpdating(false);
+    }
+  }
 
   return (
     <View style={styles.screen}>
@@ -37,7 +63,17 @@ export function ActivityDetailScreen({ activity, onBack }: ActivityDetailScreenP
       </ScrollView>
 
       <View style={styles.footer}>
-        <PrimaryButton onPress={onBack} variant="secondary">Volver a la lista</PrimaryButton>
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+        <PrimaryButton disabled={isUpdating} onPress={handleStatusChange}>
+          {isUpdating
+            ? 'Actualizando...'
+            : isDone
+              ? 'Marcar como pendiente'
+              : 'Marcar como realizada'}
+        </PrimaryButton>
+        <PrimaryButton disabled={isUpdating} onPress={onBack} variant="secondary">
+          Volver a la lista
+        </PrimaryButton>
       </View>
     </View>
   );
@@ -131,6 +167,13 @@ const styles = StyleSheet.create({
   footer: {
     borderColor: colors.border,
     borderTopWidth: 1,
+    gap: spacing.sm,
     paddingVertical: spacing.md,
+  },
+  errorText: {
+    color: colors.danger,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
   },
 });

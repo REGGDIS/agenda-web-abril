@@ -4,10 +4,10 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { ActivityCard } from '../components/ActivityCard';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { isBackendConfigured } from '../config/environment';
-import { listAprilActivities } from '../services/activitiesService';
+import { listAprilActivities, updateActivityStatus } from '../services/activitiesService';
 import { ActivityDetailScreen } from './ActivityDetailScreen';
 import { colors, radius, spacing } from '../styles/theme';
-import type { Activity } from '../types/activity';
+import type { Activity, ActivityStatus } from '../types/activity';
 import type { MobileAuthSession } from '../types/auth';
 
 type ActivitiesScreenProps = {
@@ -44,6 +44,26 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
     loadActivities();
   }, [loadActivities]);
 
+  const handleActivityStatusChange = useCallback(
+    async (activityId: string, nextStatus: ActivityStatus) => {
+      const updatedStatus = await updateActivityStatus(activityId, nextStatus);
+
+      setActivities((currentActivities) =>
+        currentActivities.map((activity) =>
+          activity.id === activityId
+            ? { ...activity, status: updatedStatus }
+            : activity,
+        ),
+      );
+      setSelectedActivity((currentActivity) =>
+        currentActivity?.id === activityId
+          ? { ...currentActivity, status: updatedStatus }
+          : currentActivity,
+      );
+    },
+    [],
+  );
+
   const pendingCount = activities.filter((activity) => activity.status === 'pending').length;
 
   if (selectedActivity) {
@@ -51,6 +71,7 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
       <ActivityDetailScreen
         activity={selectedActivity}
         onBack={() => setSelectedActivity(null)}
+        onStatusChange={handleActivityStatusChange}
       />
     );
   }

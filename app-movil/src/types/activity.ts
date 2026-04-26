@@ -34,3 +34,11 @@ export type ActivitiesResponse = {
   actividades: ApiActivity[];
   message?: string;
 };
+
+export type ActivityStatusUpdateResponse = {
+  success: boolean;
+  message?: string;
+  id_actividad?: number;
+  realizada?: boolean;
+  detail?: string;
+};

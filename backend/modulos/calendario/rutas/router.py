@@ -137,6 +137,7 @@ def calendario_view(
 
 @router.post("/actividades/{actividad_id}/realizada")
 def update_actividad_checklist(
+    request: Request,
     actividad_id: int,
     realizada: str = Form(...),
     session_result: SesionResolutionResult = Depends(get_current_session_result),
@@ -149,10 +150,23 @@ def update_actividad_checklist(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
+        if _wants_json_response(request):
+            response = JSONResponse(
+                status_code=session_result.http_status,
+                content=jsonable_encoder(
+                    {
+                        "success": False,
+                        "status": session_result.response.status,
+                        "message": session_result.response.message,
+                    }
+                ),
+            )
+            response.delete_cookie(key=settings.session_cookie_name, path="/")
+            return response
         return build_login_redirect_response(session_result)
 
     try:
-        actividad_checklist_service.set_realizada(
+        actividad = actividad_checklist_service.set_realizada(
             ActividadChecklistCommand(
                 actividad_id=actividad_id,
                 actor_user_id=session_result.response.usuario.id_usuario,
@@ -171,7 +185,30 @@ def update_actividad_checklist(
             detail=str(exc),
         ) from exc
 
+    if _wants_json_response(request):
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=jsonable_encoder(
+                {
+                    "success": True,
+                    "message": "Estado de actividad actualizado.",
+                    "id_actividad": _get_actividad_value(actividad, "id_actividad"),
+                    "realizada": _get_actividad_value(actividad, "realizada"),
+                }
+            ),
+        )
+
     return RedirectResponse(url="/calendario", status_code=303)
+
+
+def _wants_json_response(request: Request) -> bool:
+    return "application/json" in request.headers.get("accept", "").lower()
+
+
+def _get_actividad_value(actividad, field_name: str):
+    if isinstance(actividad, dict):
+        return actividad[field_name]
+    return getattr(actividad, field_name)
 
 
 def _parse_realizada_flag(raw_value: str) -> bool:

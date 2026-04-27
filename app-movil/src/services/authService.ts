@@ -1,6 +1,10 @@
 import { isBackendConfigured } from '../config/environment';
 import { apiRequest, buildApiUrl } from './apiClient';
-import type { LoginRutResponse, MobileAuthSession } from '../types/auth';
+import type {
+  LoginRutResponse,
+  MobileAuthSession,
+  SessionActivityResponse,
+} from '../types/auth';
 
 export async function loginWithRut(rut: string): Promise<MobileAuthSession> {
   if (!isBackendConfigured) {
@@ -40,4 +44,18 @@ export async function logoutMobileSession(): Promise<void> {
     method: 'POST',
     redirect: 'manual',
   });
+}
+
+export async function registerMobileSessionActivity(): Promise<void> {
+  if (!isBackendConfigured) {
+    return;
+  }
+
+  const data = await apiRequest<SessionActivityResponse>('/sesiones/actividad', {
+    method: 'POST',
+  });
+
+  if (!data.success) {
+    throw new Error(data.message || 'No fue posible registrar actividad de sesion.');
+  }
 }

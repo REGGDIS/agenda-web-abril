@@ -15,10 +15,14 @@ import { colors, radius, spacing } from '../styles/theme';
 import type { MobileAuthSession } from '../types/auth';
 
 type LoginScreenProps = {
+  noticeMessage?: string;
   onLoginSuccess: (session: MobileAuthSession) => void;
 };
 
-export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
+export function LoginScreen({
+  noticeMessage = '',
+  onLoginSuccess,
+}: LoginScreenProps) {
   const [rut, setRut] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -78,6 +82,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           <Text style={styles.helper}>
             La app usa el backend configurado para Expo Go y carga actividades reales.
           </Text>
+          {noticeMessage ? <Text style={styles.notice}>{noticeMessage}</Text> : null}
           {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
           <PrimaryButton disabled={isLoading || !rut.trim()} onPress={handleSubmit}>
             {isLoading ? 'Validando...' : 'Validar ingreso'}
@@ -172,6 +177,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: colors.danger,
     fontSize: 13,
+    lineHeight: 19,
+    marginBottom: spacing.sm,
+    padding: spacing.sm,
+  },
+  notice: {
+    backgroundColor: colors.accentSoft,
+    borderColor: '#f7c7bd',
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    color: colors.accentStrong,
+    fontSize: 13,
+    fontWeight: '700',
     lineHeight: 19,
     marginBottom: spacing.sm,
     padding: spacing.sm,

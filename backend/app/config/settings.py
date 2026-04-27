@@ -74,7 +74,7 @@ class Settings(BaseModel):
     sqlalchemy_echo: bool = Field(default=False)
     secret_key: str = Field(default="change-me")
     session_cookie_name: str = Field(default="agenda_abril_session")
-    session_inactivity_minutes: int = Field(default=1)
+    session_inactivity_minutes: int = Field(default=3)
     april_month: int = Field(default=4)
 
     @property
@@ -119,7 +119,7 @@ def get_settings() -> Settings:
         session_cookie_name=_get_env_str(
             "SESSION_COOKIE_NAME", "agenda_abril_session"
         ),
-        session_inactivity_minutes=_get_env_int("SESSION_INACTIVITY_MINUTES", 1),
+        session_inactivity_minutes=_get_env_int("SESSION_INACTIVITY_MINUTES", 3),
         april_month=_get_env_int("APRIL_MONTH", 4),
     )
 

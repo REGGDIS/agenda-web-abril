@@ -2,6 +2,10 @@ import { apiRequest } from './apiClient';
 import type {
   ActivitiesResponse,
   Activity,
+  ActivityCategoriesResponse,
+  ActivityCategory,
+  CreateActivityPayload,
+  CreateActivityResponse,
   ActivityStatus,
   ActivityStatusUpdateResponse,
   ApiActivity,
@@ -15,6 +19,37 @@ export async function listAprilActivities(): Promise<Activity[]> {
   }
 
   return data.actividades.map(mapApiActivityToActivity);
+}
+
+export async function listActivityCategories(): Promise<ActivityCategory[]> {
+  const data = await apiRequest<ActivityCategoriesResponse>('/categorias');
+
+  if (!data.success) {
+    throw new Error(
+      data.message || data.detail || 'No fue posible cargar las categorias.',
+    );
+  }
+
+  return data.categorias;
+}
+
+export async function createActivity(payload: CreateActivityPayload): Promise<number> {
+  const data = await apiRequest<CreateActivityResponse>('/actividades/nueva', {
+    body: buildFormBody({
+      ...payload,
+      realizada: payload.realizada ? 'true' : 'false',
+    }),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    method: 'POST',
+  });
+
+  if (!data.success || typeof data.id_actividad !== 'number') {
+    throw new Error(getCreateActivityErrorMessage(data));
+  }
+
+  return data.id_actividad;
 }
 
 export async function updateActivityStatus(
@@ -40,6 +75,23 @@ export async function updateActivityStatus(
   }
 
   return data.realizada ? 'done' : 'pending';
+}
+
+function buildFormBody(values: Record<string, string | boolean>) {
+  return Object.entries(values)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+    .join('&');
+}
+
+function getCreateActivityErrorMessage(data: CreateActivityResponse) {
+  if (data.field_errors) {
+    const firstFieldError = Object.values(data.field_errors)[0];
+    if (firstFieldError) {
+      return firstFieldError;
+    }
+  }
+
+  return data.message || data.detail || 'No fue posible crear la actividad.';
 }
 
 function mapApiActivityToActivity(activity: ApiActivity): Activity {

@@ -13,10 +13,18 @@ type AppRoute = 'login' | 'activities';
 export default function App() {
   const [route, setRoute] = useState<AppRoute>('login');
   const [authSession, setAuthSession] = useState<MobileAuthSession | null>(null);
+  const [loginMessage, setLoginMessage] = useState('');
 
   const handleLoginSuccess = (session: MobileAuthSession) => {
     setAuthSession(session);
+    setLoginMessage('');
     setRoute('activities');
+  };
+
+  const handleSessionExpired = () => {
+    setAuthSession(null);
+    setLoginMessage('Tu sesión expiró. Ingresa nuevamente.');
+    setRoute('login');
   };
 
   const handleLogout = async () => {
@@ -24,6 +32,7 @@ export default function App() {
       await logoutMobileSession();
     } finally {
       setAuthSession(null);
+      setLoginMessage('');
       setRoute('login');
     }
   };
@@ -32,9 +41,16 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       {route === 'login' ? (
-        <LoginScreen onLoginSuccess={handleLoginSuccess} />
+        <LoginScreen
+          noticeMessage={loginMessage}
+          onLoginSuccess={handleLoginSuccess}
+        />
       ) : (
-        <ActivitiesScreen authSession={authSession} onLogout={handleLogout} />
+        <ActivitiesScreen
+          authSession={authSession}
+          onLogout={handleLogout}
+          onSessionExpired={handleSessionExpired}
+        />
       )}
     </SafeAreaView>
   );

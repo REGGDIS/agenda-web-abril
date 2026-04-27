@@ -44,3 +44,9 @@ export type MobileAuthSession = {
   usuario: LoginUser;
   sesion: LoginSession;
 };
+
+export type SessionActivityResponse = {
+  success: boolean;
+  status: string;
+  message: string;
+};

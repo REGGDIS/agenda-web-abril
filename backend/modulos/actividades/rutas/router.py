@@ -3,7 +3,8 @@
 from datetime import date
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from backend.app.config.settings import get_settings
@@ -63,6 +64,8 @@ def actividad_create_view(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
+        if _wants_json_response(request):
+            return _build_invalid_session_json_response(session_result)
         return build_login_redirect_response(session_result)
 
     try:
@@ -121,6 +124,8 @@ def actividad_create_submit(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
+        if _wants_json_response(request):
+            return _build_invalid_session_json_response(session_result)
         return build_login_redirect_response(session_result)
 
     command = ActividadCreateCommand(
@@ -141,6 +146,18 @@ def actividad_create_submit(
     try:
         created_activity = actividad_create_service.create(command)
     except ActivityCreationValidationError as exc:
+        if _wants_json_response(request):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=jsonable_encoder(
+                    {
+                        "success": False,
+                        "message": exc.general_error,
+                        "field_errors": exc.field_errors,
+                    }
+                ),
+            )
+
         create_view = actividad_create_service.prepare_form(
             ActividadCreateFormQuery(
                 actor_user_id=session_result.response.usuario.id_usuario,
@@ -184,6 +201,19 @@ def actividad_create_submit(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(exc),
         ) from exc
+
+    if _wants_json_response(request):
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content=jsonable_encoder(
+                {
+                    "success": True,
+                    "message": "Actividad creada correctamente.",
+                    "id_actividad": created_activity.id_actividad,
+                    "titulo": created_activity.titulo,
+                }
+            ),
+        )
 
     return RedirectResponse(
         url=f"/calendario?actividad_creada={created_activity.id_actividad}",
@@ -533,6 +563,27 @@ def _parse_checkbox_flag(raw_value: str | None) -> bool:
     if raw_value is None:
         return False
     return raw_value.strip().lower() in {"1", "true", "on", "si", "sí"}
+
+
+def _wants_json_response(request: Request) -> bool:
+    return "application/json" in request.headers.get("accept", "").lower()
+
+
+def _build_invalid_session_json_response(
+    session_result: SesionResolutionResult,
+) -> JSONResponse:
+    response = JSONResponse(
+        status_code=session_result.http_status,
+        content=jsonable_encoder(
+            {
+                "success": False,
+                "status": session_result.response.status,
+                "message": session_result.response.message,
+            }
+        ),
+    )
+    response.delete_cookie(key=settings.session_cookie_name, path="/")
+    return response
 
 
 def _build_prefilled_create_form_data(

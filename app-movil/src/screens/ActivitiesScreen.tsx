@@ -4,23 +4,37 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { ActivityCard } from '../components/ActivityCard';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { isBackendConfigured } from '../config/environment';
-import { listAprilActivities, updateActivityStatus } from '../services/activitiesService';
+import {
+  createActivity,
+  listAprilActivities,
+  updateActivityStatus,
+} from '../services/activitiesService';
+import { registerMobileSessionActivity } from '../services/authService';
+import { isMobileSessionExpiredError } from '../services/apiClient';
 import { ActivityDetailScreen } from './ActivityDetailScreen';
+import { CreateActivityScreen } from './CreateActivityScreen';
 import { colors, radius, spacing } from '../styles/theme';
-import type { Activity, ActivityStatus } from '../types/activity';
+import type { Activity, ActivityStatus, CreateActivityPayload } from '../types/activity';
 import type { MobileAuthSession } from '../types/auth';
 
 type ActivitiesScreenProps = {
   authSession: MobileAuthSession | null;
   onLogout: () => Promise<void>;
+  onSessionExpired: () => void;
 };
 
-export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProps) {
+export function ActivitiesScreen({
+  authSession,
+  onLogout,
+  onSessionExpired,
+}: ActivitiesScreenProps) {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [isCreatingActivity, setIsCreatingActivity] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const loadActivities = useCallback(async () => {
     setIsLoading(true);
@@ -30,6 +44,11 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
       const loadedActivities = await listAprilActivities();
       setActivities(loadedActivities);
     } catch (error) {
+      if (isMobileSessionExpiredError(error)) {
+        onSessionExpired();
+        return;
+      }
+
       setActivities([]);
       setErrorMessage(
         error instanceof Error
@@ -39,7 +58,7 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [onSessionExpired]);
 
   useEffect(() => {
     loadActivities();
@@ -47,7 +66,18 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
 
   const handleActivityStatusChange = useCallback(
     async (activityId: string, nextStatus: ActivityStatus) => {
-      const updatedStatus = await updateActivityStatus(activityId, nextStatus);
+      let updatedStatus: ActivityStatus;
+
+      try {
+        updatedStatus = await updateActivityStatus(activityId, nextStatus);
+      } catch (error) {
+        if (isMobileSessionExpiredError(error)) {
+          onSessionExpired();
+          return;
+        }
+
+        throw error;
+      }
 
       setActivities((currentActivities) =>
         currentActivities.map((activity) =>
@@ -62,8 +92,61 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
           : currentActivity,
       );
     },
-    [],
+    [onSessionExpired],
   );
+
+  const handleCreateActivity = useCallback(
+    async (payload: CreateActivityPayload) => {
+      try {
+        await createActivity(payload);
+        setIsCreatingActivity(false);
+        setSelectedActivity(null);
+        setSuccessMessage('Actividad creada correctamente.');
+        await loadActivities();
+      } catch (error) {
+        if (isMobileSessionExpiredError(error)) {
+          onSessionExpired();
+          return;
+        }
+
+        throw error;
+      }
+    },
+    [loadActivities, onSessionExpired],
+  );
+
+  const handleActivityPress = useCallback(
+    async (activity: Activity) => {
+      try {
+        await registerMobileSessionActivity();
+        setSelectedActivity(activity);
+      } catch (error) {
+        if (isMobileSessionExpiredError(error)) {
+          onSessionExpired();
+          return;
+        }
+
+        setSelectedActivity(activity);
+      }
+    },
+    [onSessionExpired],
+  );
+
+  const handleNewActivityPress = useCallback(async () => {
+    try {
+      await registerMobileSessionActivity();
+      setSuccessMessage('');
+      setIsCreatingActivity(true);
+    } catch (error) {
+      if (isMobileSessionExpiredError(error)) {
+        onSessionExpired();
+        return;
+      }
+
+      setSuccessMessage('');
+      setIsCreatingActivity(true);
+    }
+  }, [onSessionExpired]);
 
   const handleLogoutPress = useCallback(async () => {
     setIsLoggingOut(true);
@@ -71,6 +154,17 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
   }, [onLogout]);
 
   const pendingCount = activities.filter((activity) => activity.status === 'pending').length;
+
+  if (isCreatingActivity) {
+    return (
+      <CreateActivityScreen
+        authSession={authSession}
+        onCancel={() => setIsCreatingActivity(false)}
+        onCreate={handleCreateActivity}
+        onSessionExpired={onSessionExpired}
+      />
+    );
+  }
 
   if (selectedActivity) {
     return (
@@ -111,6 +205,20 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
         </View>
       </View>
 
+      <View style={styles.actions}>
+        <PrimaryButton
+          onPress={handleNewActivityPress}
+        >
+          Nueva actividad
+        </PrimaryButton>
+      </View>
+
+      {successMessage ? (
+        <View style={styles.successBox}>
+          <Text style={styles.successText}>{successMessage}</Text>
+        </View>
+      ) : null}
+
       {isLoading ? (
         <View style={styles.stateBox}>
           <Text style={styles.stateTitle}>Cargando actividades...</Text>
@@ -135,7 +243,7 @@ export function ActivitiesScreen({ authSession, onLogout }: ActivitiesScreenProp
           data={activities}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <ActivityCard activity={item} onPress={setSelectedActivity} />
+            <ActivityCard activity={item} onPress={handleActivityPress} />
           )}
         />
       )}
@@ -186,6 +294,24 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginBottom: spacing.md,
     padding: spacing.md,
+  },
+  actions: {
+    marginBottom: spacing.md,
+  },
+  successBox: {
+    backgroundColor: colors.successSoft,
+    borderColor: colors.success,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    marginBottom: spacing.md,
+    padding: spacing.sm,
+  },
+  successText: {
+    color: colors.success,
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 20,
+    textAlign: 'center',
   },
   summaryItem: {
     flex: 1,

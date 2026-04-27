@@ -133,6 +133,45 @@ def test_actividad_create_submit_redirects_to_calendar_on_success():
     assert fake_service.last_command.realizada is True
 
 
+def test_actividad_create_submit_returns_json_when_requested_by_mobile_client():
+    client = get_client()
+    fake_service = FakeCreateService()
+    client.app.dependency_overrides[get_current_session_result] = _valid_session_result
+    client.app.dependency_overrides[get_actividad_create_service] = lambda: fake_service
+
+    try:
+        response = client.post(
+            "/actividades/nueva",
+            data={
+                "titulo": "Nueva actividad movil",
+                "descripcion": "Detalle desde Expo",
+                "fecha_actividad": "2026-04-20",
+                "hora_inicio": "09:00",
+                "hora_fin": "10:00",
+                "emoji": "M",
+                "lugar": "Sala 1",
+                "id_categoria": "1",
+                "id_usuario": "2",
+                "realizada": "false",
+            },
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 201
+    assert response.json() == {
+        "success": True,
+        "message": "Actividad creada correctamente.",
+        "id_actividad": 25,
+        "titulo": "Nueva actividad movil",
+    }
+    assert fake_service.last_command is not None
+    assert fake_service.last_command.actor_user_id == 2
+    assert fake_service.last_command.id_usuario == "2"
+    assert fake_service.last_command.realizada is False
+
+
 def test_actividad_create_submit_rerenders_form_when_validation_fails():
     client = get_client()
     fake_service = InvalidCreateService()
@@ -166,6 +205,39 @@ def test_actividad_create_submit_rerenders_form_when_validation_fails():
     )
 
 
+def test_actividad_create_submit_returns_json_validation_error_for_mobile_client():
+    client = get_client()
+    fake_service = InvalidCreateService()
+    client.app.dependency_overrides[get_current_session_result] = _valid_session_result
+    client.app.dependency_overrides[get_actividad_create_service] = lambda: fake_service
+
+    try:
+        response = client.post(
+            "/actividades/nueva",
+            data={
+                "titulo": "Actividad fuera de rango",
+                "descripcion": "",
+                "fecha_actividad": "2026-05-02",
+                "hora_inicio": "09:00",
+                "hora_fin": "10:00",
+                "emoji": "",
+                "lugar": "",
+                "id_categoria": "1",
+                "id_usuario": "2",
+            },
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "success": False,
+        "message": "Hay datos invalidos.",
+        "field_errors": {"fecha_actividad": "Solo abril es valido."},
+    }
+
+
 def test_actividad_create_submit_redirects_to_login_when_session_is_invalid():
     client = get_client()
     client.app.dependency_overrides[get_current_session_result] = _invalid_session_result
@@ -191,6 +263,34 @@ def test_actividad_create_submit_redirects_to_login_when_session_is_invalid():
 
     assert response.status_code == 303
     assert response.headers["location"] == "/login"
+
+
+def test_actividad_create_submit_returns_json_error_when_mobile_session_is_invalid():
+    client = get_client()
+    client.app.dependency_overrides[get_current_session_result] = _invalid_session_result
+
+    try:
+        response = client.post(
+            "/actividades/nueva",
+            data={
+                "titulo": "Actividad",
+                "descripcion": "",
+                "fecha_actividad": "2026-04-20",
+                "hora_inicio": "09:00",
+                "hora_fin": "10:00",
+                "emoji": "",
+                "lugar": "",
+                "id_categoria": "1",
+                "id_usuario": "2",
+            },
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 401
+    assert response.json()["success"] is False
+    assert response.json()["message"] == "Sin cookie."
 
 
 def test_actividad_create_submit_returns_403_when_permission_is_denied():

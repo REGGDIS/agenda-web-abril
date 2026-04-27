@@ -33,9 +33,14 @@ export function ActivityCard({ activity, onPress }: ActivityCardProps) {
 
       <Text style={styles.meta}>{activity.dateLabel} · {activity.timeLabel}</Text>
       {activity.categoryLabel || activity.emoji ? (
-        <Text style={styles.category}>
-          {activity.emoji ? `${activity.emoji} ` : ''}{activity.categoryLabel ?? 'Sin categoria'}
-        </Text>
+        <View style={styles.categoryRow}>
+          {activity.emoji ? (
+            <Text style={styles.emojiBadge}>{activity.emoji}</Text>
+          ) : null}
+          <Text style={styles.category}>
+            {activity.categoryLabel ?? 'Sin categoria'}
+          </Text>
+        </View>
       ) : null}
       <Text style={styles.place}>{activity.place}</Text>
     </Pressable>
@@ -103,10 +108,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: spacing.xs,
   },
+  categoryRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  emojiBadge: {
+    backgroundColor: colors.accentSoft,
+    borderColor: '#f7c7bd',
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    fontSize: 16,
+    minWidth: 30,
+    overflow: 'hidden',
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    textAlign: 'center',
+  },
   category: {
     color: colors.accentStrong,
     fontSize: 13,
     fontWeight: '700',
-    marginTop: spacing.xs,
   },
 });

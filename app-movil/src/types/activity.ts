@@ -78,6 +78,13 @@ export type CreateActivityResponse = {
 
 export type UpdateActivityResponse = CreateActivityResponse;
 
+export type DeleteActivityResponse = {
+  success: boolean;
+  message?: string;
+  id_actividad?: number;
+  detail?: string;
+};
+
 export type ActivityStatusUpdateResponse = {
   success: boolean;
   message?: string;

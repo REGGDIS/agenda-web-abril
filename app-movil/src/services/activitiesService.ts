@@ -6,6 +6,7 @@ import type {
   ActivityCategory,
   CreateActivityPayload,
   CreateActivityResponse,
+  DeleteActivityResponse,
   ActivityStatus,
   ActivityStatusUpdateResponse,
   ApiActivity,
@@ -76,6 +77,21 @@ export async function updateActivity(
   }
 
   return data.id_actividad;
+}
+
+export async function deleteActivity(activityId: string): Promise<void> {
+  const data = await apiRequest<DeleteActivityResponse>(
+    `/actividades/${activityId}/eliminar`,
+    {
+      method: 'POST',
+    },
+  );
+
+  if (!data.success) {
+    throw new Error(
+      data.message || data.detail || 'No fue posible eliminar la actividad.',
+    );
+  }
 }
 
 export async function updateActivityStatus(

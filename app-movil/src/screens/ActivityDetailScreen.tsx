@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, radius, spacing } from '../styles/theme';
@@ -8,6 +8,7 @@ import type { Activity, ActivityStatus } from '../types/activity';
 type ActivityDetailScreenProps = {
   activity: Activity;
   onBack: () => void;
+  onDelete: (activityId: string) => Promise<void>;
   onEdit: (activity: Activity) => void;
   onStatusChange: (activityId: string, nextStatus: ActivityStatus) => Promise<void>;
 };
@@ -15,10 +16,12 @@ type ActivityDetailScreenProps = {
 export function ActivityDetailScreen({
   activity,
   onBack,
+  onDelete,
   onEdit,
   onStatusChange,
 }: ActivityDetailScreenProps) {
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const isDone = activity.status === 'done';
   const nextStatus: ActivityStatus = isDone ? 'pending' : 'done';
@@ -39,6 +42,43 @@ export function ActivityDetailScreen({
       setIsUpdating(false);
     }
   }
+
+  function handleDeletePress() {
+    Alert.alert(
+      'Eliminar actividad',
+      `Se eliminara "${activity.title}". Esta accion no se puede deshacer.`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          onPress: handleDeleteConfirm,
+          style: 'destructive',
+        },
+      ],
+    );
+  }
+
+  async function handleDeleteConfirm() {
+    setIsDeleting(true);
+    setErrorMessage('');
+
+    try {
+      await onDelete(activity.id);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible eliminar la actividad.',
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+  const actionsDisabled = isUpdating || isDeleting;
 
   return (
     <View style={styles.screen}>
@@ -66,17 +106,20 @@ export function ActivityDetailScreen({
 
       <View style={styles.footer}>
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-        <PrimaryButton disabled={isUpdating} onPress={() => onEdit(activity)} variant="secondary">
+        <PrimaryButton disabled={actionsDisabled} onPress={() => onEdit(activity)} variant="secondary">
           Editar actividad
         </PrimaryButton>
-        <PrimaryButton disabled={isUpdating} onPress={handleStatusChange}>
+        <PrimaryButton disabled={actionsDisabled} onPress={handleStatusChange}>
           {isUpdating
             ? 'Actualizando...'
             : isDone
               ? 'Marcar como pendiente'
               : 'Marcar como realizada'}
         </PrimaryButton>
-        <PrimaryButton disabled={isUpdating} onPress={onBack} variant="secondary">
+        <PrimaryButton disabled={actionsDisabled} onPress={handleDeletePress} variant="danger">
+          {isDeleting ? 'Eliminando...' : 'Eliminar actividad'}
+        </PrimaryButton>
+        <PrimaryButton disabled={actionsDisabled} onPress={onBack} variant="secondary">
           Volver a la lista
         </PrimaryButton>
       </View>

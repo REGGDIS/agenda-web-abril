@@ -7,7 +7,7 @@ type PrimaryButtonProps = {
   children: ReactNode;
   disabled?: boolean;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'danger';
 };
 
 export function PrimaryButton({
@@ -17,6 +17,7 @@ export function PrimaryButton({
   variant = 'primary',
 }: PrimaryButtonProps) {
   const isPrimary = variant === 'primary';
+  const isDanger = variant === 'danger';
 
   return (
     <Pressable
@@ -25,12 +26,17 @@ export function PrimaryButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        isPrimary ? styles.primary : styles.secondary,
+        isPrimary ? styles.primary : isDanger ? styles.danger : styles.secondary,
         pressed && !disabled && styles.pressed,
         disabled && styles.disabled,
       ]}
     >
-      <Text style={[styles.label, isPrimary ? styles.primaryLabel : styles.secondaryLabel]}>
+      <Text
+        style={[
+          styles.label,
+          isPrimary || isDanger ? styles.primaryLabel : styles.secondaryLabel,
+        ]}
+      >
         {children}
       </Text>
     </Pressable>
@@ -52,6 +58,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.border,
     borderWidth: 1,
+  },
+  danger: {
+    backgroundColor: colors.danger,
   },
   pressed: {
     opacity: 0.82,

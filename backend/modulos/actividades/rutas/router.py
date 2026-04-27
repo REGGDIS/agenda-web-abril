@@ -445,6 +445,7 @@ def actividad_delete_confirm_view(
 
 @router.post("/{actividad_id}/eliminar")
 def actividad_delete_submit(
+    request: Request,
     actividad_id: int,
     session_result: SesionResolutionResult = Depends(get_current_session_result),
     actividad_delete_service: ActividadDeleteService = Depends(
@@ -456,6 +457,8 @@ def actividad_delete_submit(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
+        if _wants_json_response(request):
+            return _build_invalid_session_json_response(session_result)
         return build_login_redirect_response(session_result)
 
     try:
@@ -476,6 +479,18 @@ def actividad_delete_submit(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(exc),
         ) from exc
+
+    if _wants_json_response(request):
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=jsonable_encoder(
+                {
+                    "success": True,
+                    "message": "Actividad eliminada correctamente.",
+                    "id_actividad": actividad_id,
+                }
+            ),
+        )
 
     return RedirectResponse(url="/calendario?actividad_eliminada=1", status_code=303)
 

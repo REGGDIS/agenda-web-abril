@@ -40,6 +40,9 @@ class MissingDeleteService(FakeDeleteService):
     def get_preview(self, query):
         raise ActivityNotFoundError(f"No existe actividad con id {query.actividad_id}.")
 
+    def delete(self, command):
+        raise ActivityNotFoundError(f"No existe actividad con id {command.actividad_id}.")
+
 
 class ForbiddenDeleteService(FakeDeleteService):
     def get_preview(self, query):
@@ -91,6 +94,31 @@ def test_actividad_delete_submit_redirects_to_calendar_on_success():
     assert fake_service.last_command.actor_user_id == 2
 
 
+def test_actividad_delete_submit_returns_json_when_requested_by_mobile_client():
+    client = get_client()
+    fake_service = FakeDeleteService()
+    client.app.dependency_overrides[get_current_session_result] = _valid_session_result
+    client.app.dependency_overrides[get_actividad_delete_service] = lambda: fake_service
+
+    try:
+        response = client.post(
+            "/actividades/5/eliminar",
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "success": True,
+        "message": "Actividad eliminada correctamente.",
+        "id_actividad": 5,
+    }
+    assert fake_service.last_command is not None
+    assert fake_service.last_command.actividad_id == 5
+    assert fake_service.last_command.actor_user_id == 2
+
+
 def test_actividad_delete_confirm_returns_403_when_forbidden():
     client = get_client()
     client.app.dependency_overrides[get_current_session_result] = _valid_session_result
@@ -136,6 +164,63 @@ def test_actividad_delete_submit_redirects_to_login_when_session_is_invalid():
 
     assert response.status_code == 303
     assert response.headers["location"] == "/login"
+
+
+def test_actividad_delete_submit_returns_json_error_when_mobile_session_is_invalid():
+    client = get_client()
+    client.app.dependency_overrides[get_current_session_result] = _invalid_session_result
+
+    try:
+        response = client.post(
+            "/actividades/5/eliminar",
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 401
+    assert response.json()["success"] is False
+    assert response.json()["message"] == "Sin cookie."
+
+
+def test_actividad_delete_submit_returns_403_when_forbidden():
+    client = get_client()
+    client.app.dependency_overrides[get_current_session_result] = _valid_session_result
+    client.app.dependency_overrides[get_actividad_delete_service] = (
+        lambda: ForbiddenDeleteService()
+    )
+
+    try:
+        response = client.post(
+            "/actividades/5/eliminar",
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == (
+        "El usuario no tiene permisos para eliminar esta actividad."
+    )
+
+
+def test_actividad_delete_submit_returns_404_when_missing():
+    client = get_client()
+    client.app.dependency_overrides[get_current_session_result] = _valid_session_result
+    client.app.dependency_overrides[get_actividad_delete_service] = (
+        lambda: MissingDeleteService()
+    )
+
+    try:
+        response = client.post(
+            "/actividades/999/eliminar",
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "No existe actividad con id 999."
 
 
 def _valid_session_result() -> SesionResolutionResult:

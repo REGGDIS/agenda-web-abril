@@ -6,6 +6,7 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { isBackendConfigured } from '../config/environment';
 import {
   createActivity,
+  deleteActivity,
   listAprilActivities,
   updateActivity,
   updateActivityStatus,
@@ -149,6 +150,26 @@ export function ActivitiesScreen({
     setEditingActivity(activity);
   }, []);
 
+  const handleDeleteActivity = useCallback(
+    async (activityId: string) => {
+      try {
+        await deleteActivity(activityId);
+        const refreshedActivities = await listAprilActivities();
+        setActivities(refreshedActivities);
+        setSelectedActivity(null);
+        setSuccessMessage('Actividad eliminada correctamente.');
+      } catch (error) {
+        if (isMobileSessionExpiredError(error)) {
+          onSessionExpired();
+          return;
+        }
+
+        throw error;
+      }
+    },
+    [onSessionExpired],
+  );
+
   const handleActivityPress = useCallback(
     async (activity: Activity) => {
       try {
@@ -218,6 +239,7 @@ export function ActivitiesScreen({
       <ActivityDetailScreen
         activity={selectedActivity}
         onBack={() => setSelectedActivity(null)}
+        onDelete={handleDeleteActivity}
         onEdit={handleEditPress}
         onStatusChange={handleActivityStatusChange}
       />

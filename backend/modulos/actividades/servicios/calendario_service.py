@@ -181,6 +181,7 @@ class ActividadCalendarService:
             hora_inicio=actividad.hora_inicio,
             hora_fin=actividad.hora_fin,
             descripcion=actividad.descripcion,
+            id_categoria=actividad.id_categoria,
             categoria_nombre=categoria_nombre,
             emoji=actividad.emoji,
             realizada=actividad.realizada,

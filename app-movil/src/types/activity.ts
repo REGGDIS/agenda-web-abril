@@ -4,13 +4,19 @@ export type Activity = {
   id: string;
   title: string;
   description: string | null;
+  date: string;
   dateLabel: string;
+  startTime: string;
   timeLabel: string;
+  endTime: string;
   endTimeLabel: string;
   place: string;
+  placeValue: string;
+  categoryId: string;
   categoryLabel: string | null;
   emoji: string | null;
   status: ActivityStatus;
+  userId: string;
 };
 
 export type ApiActivity = {
@@ -20,6 +26,7 @@ export type ApiActivity = {
   hora_inicio: string;
   hora_fin: string;
   descripcion: string | null;
+  id_categoria: number;
   categoria_nombre: string | null;
   emoji: string | null;
   realizada: boolean;
@@ -68,6 +75,8 @@ export type CreateActivityResponse = {
   field_errors?: Record<string, string>;
   detail?: string;
 };
+
+export type UpdateActivityResponse = CreateActivityResponse;
 
 export type ActivityStatusUpdateResponse = {
   success: boolean;

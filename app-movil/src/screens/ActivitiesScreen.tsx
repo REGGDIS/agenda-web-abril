@@ -7,6 +7,7 @@ import { isBackendConfigured } from '../config/environment';
 import {
   createActivity,
   listAprilActivities,
+  updateActivity,
   updateActivityStatus,
 } from '../services/activitiesService';
 import { registerMobileSessionActivity } from '../services/authService';
@@ -31,6 +32,7 @@ export function ActivitiesScreen({
   const [activities, setActivities] = useState<Activity[]>([]);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isCreatingActivity, setIsCreatingActivity] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -115,6 +117,38 @@ export function ActivitiesScreen({
     [loadActivities, onSessionExpired],
   );
 
+  const handleEditActivity = useCallback(
+    async (payload: CreateActivityPayload) => {
+      if (!editingActivity) {
+        return;
+      }
+
+      try {
+        await updateActivity(editingActivity.id, payload);
+        const refreshedActivities = await listAprilActivities();
+        const refreshedActivity =
+          refreshedActivities.find((activity) => activity.id === editingActivity.id) ??
+          null;
+
+        setActivities(refreshedActivities);
+        setEditingActivity(null);
+        setSelectedActivity(refreshedActivity);
+      } catch (error) {
+        if (isMobileSessionExpiredError(error)) {
+          onSessionExpired();
+          return;
+        }
+
+        throw error;
+      }
+    },
+    [editingActivity, onSessionExpired],
+  );
+
+  const handleEditPress = useCallback((activity: Activity) => {
+    setEditingActivity(activity);
+  }, []);
+
   const handleActivityPress = useCallback(
     async (activity: Activity) => {
       try {
@@ -166,11 +200,25 @@ export function ActivitiesScreen({
     );
   }
 
+  if (editingActivity) {
+    return (
+      <CreateActivityScreen
+        authSession={authSession}
+        initialActivity={editingActivity}
+        mode="edit"
+        onCancel={() => setEditingActivity(null)}
+        onCreate={handleEditActivity}
+        onSessionExpired={onSessionExpired}
+      />
+    );
+  }
+
   if (selectedActivity) {
     return (
       <ActivityDetailScreen
         activity={selectedActivity}
         onBack={() => setSelectedActivity(null)}
+        onEdit={handleEditPress}
         onStatusChange={handleActivityStatusChange}
       />
     );

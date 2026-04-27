@@ -8,12 +8,14 @@ import type { Activity, ActivityStatus } from '../types/activity';
 type ActivityDetailScreenProps = {
   activity: Activity;
   onBack: () => void;
+  onEdit: (activity: Activity) => void;
   onStatusChange: (activityId: string, nextStatus: ActivityStatus) => Promise<void>;
 };
 
 export function ActivityDetailScreen({
   activity,
   onBack,
+  onEdit,
   onStatusChange,
 }: ActivityDetailScreenProps) {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -64,6 +66,9 @@ export function ActivityDetailScreen({
 
       <View style={styles.footer}>
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+        <PrimaryButton disabled={isUpdating} onPress={() => onEdit(activity)} variant="secondary">
+          Editar actividad
+        </PrimaryButton>
         <PrimaryButton disabled={isUpdating} onPress={handleStatusChange}>
           {isUpdating
             ? 'Actualizando...'

@@ -9,6 +9,7 @@ import type {
   ActivityStatus,
   ActivityStatusUpdateResponse,
   ApiActivity,
+  UpdateActivityResponse,
 } from '../types/activity';
 
 export async function listAprilActivities(): Promise<Activity[]> {
@@ -46,7 +47,32 @@ export async function createActivity(payload: CreateActivityPayload): Promise<nu
   });
 
   if (!data.success || typeof data.id_actividad !== 'number') {
-    throw new Error(getCreateActivityErrorMessage(data));
+    throw new Error(getActivityMutationErrorMessage(data));
+  }
+
+  return data.id_actividad;
+}
+
+export async function updateActivity(
+  activityId: string,
+  payload: CreateActivityPayload,
+): Promise<number> {
+  const data = await apiRequest<UpdateActivityResponse>(
+    `/actividades/${activityId}/editar`,
+    {
+      body: buildFormBody({
+        ...payload,
+        realizada: payload.realizada ? 'true' : 'false',
+      }),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      method: 'POST',
+    },
+  );
+
+  if (!data.success || typeof data.id_actividad !== 'number') {
+    throw new Error(getActivityMutationErrorMessage(data));
   }
 
   return data.id_actividad;
@@ -83,7 +109,7 @@ function buildFormBody(values: Record<string, string | boolean>) {
     .join('&');
 }
 
-function getCreateActivityErrorMessage(data: CreateActivityResponse) {
+function getActivityMutationErrorMessage(data: CreateActivityResponse) {
   if (data.field_errors) {
     const firstFieldError = Object.values(data.field_errors)[0];
     if (firstFieldError) {
@@ -91,21 +117,29 @@ function getCreateActivityErrorMessage(data: CreateActivityResponse) {
     }
   }
 
-  return data.message || data.detail || 'No fue posible crear la actividad.';
+  return data.message || data.detail || 'No fue posible guardar la actividad.';
 }
 
 function mapApiActivityToActivity(activity: ApiActivity): Activity {
+  const placeValue = activity.lugar?.trim() || '';
+
   return {
     id: String(activity.id_actividad),
     title: activity.titulo,
     description: activity.descripcion,
+    date: activity.fecha_actividad,
     dateLabel: formatDateLabel(activity.fecha_actividad),
+    startTime: formatTimeLabel(activity.hora_inicio),
     timeLabel: formatTimeLabel(activity.hora_inicio),
+    endTime: formatTimeLabel(activity.hora_fin),
     endTimeLabel: formatTimeLabel(activity.hora_fin),
-    place: activity.lugar?.trim() || 'Sin lugar definido',
+    place: placeValue || 'Sin lugar definido',
+    placeValue,
+    categoryId: String(activity.id_categoria),
     categoryLabel: activity.categoria_nombre,
     emoji: activity.emoji,
     status: activity.realizada ? 'done' : 'pending',
+    userId: String(activity.id_usuario),
   };
 }
 

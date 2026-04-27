@@ -91,6 +91,7 @@ class _FakeActividad:
         lugar: str | None,
         id_usuario: int,
         categoria: _FakeCategoria | None,
+        id_categoria: int = 1,
     ) -> None:
         self.id_actividad = id_actividad
         self.titulo = titulo
@@ -103,6 +104,7 @@ class _FakeActividad:
         self.lugar = lugar
         self.id_usuario = id_usuario
         self.categoria = categoria
+        self.id_categoria = id_categoria
 
 
 def test_calendar_service_groups_activities_by_day():

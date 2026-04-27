@@ -233,6 +233,8 @@ def actividad_edit_view(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
+        if _wants_json_response(request):
+            return _build_invalid_session_json_response(session_result)
         return build_login_redirect_response(session_result)
 
     try:
@@ -295,6 +297,8 @@ def actividad_edit_submit(
         or session_result.response.usuario is None
         or session_result.response.sesion is None
     ):
+        if _wants_json_response(request):
+            return _build_invalid_session_json_response(session_result)
         return build_login_redirect_response(session_result)
 
     command = ActividadEditCommand(
@@ -316,6 +320,18 @@ def actividad_edit_submit(
     try:
         updated_activity = actividad_edit_service.update(command)
     except ActivityEditionValidationError as exc:
+        if _wants_json_response(request):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=jsonable_encoder(
+                    {
+                        "success": False,
+                        "message": exc.general_error,
+                        "field_errors": exc.field_errors,
+                    }
+                ),
+            )
+
         edit_view = actividad_edit_service.prepare_form(
             ActividadEditQuery(
                 actividad_id=actividad_id,
@@ -365,6 +381,19 @@ def actividad_edit_submit(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(exc),
         ) from exc
+
+    if _wants_json_response(request):
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=jsonable_encoder(
+                {
+                    "success": True,
+                    "message": "Actividad actualizada correctamente.",
+                    "id_actividad": updated_activity.id_actividad,
+                    "titulo": updated_activity.titulo,
+                }
+            ),
+        )
 
     return RedirectResponse(
         url=f"/actividades/{updated_activity.id_actividad}?actualizada=1",

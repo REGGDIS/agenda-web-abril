@@ -132,6 +132,45 @@ def test_actividad_edit_submit_redirects_to_detail_on_success():
     assert fake_service.last_command.realizada is True
 
 
+def test_actividad_edit_submit_returns_json_when_requested_by_mobile_client():
+    client = get_client()
+    fake_service = FakeEditService()
+    client.app.dependency_overrides[get_current_session_result] = _valid_session_result
+    client.app.dependency_overrides[get_actividad_edit_service] = lambda: fake_service
+
+    try:
+        response = client.post(
+            "/actividades/5/editar",
+            data={
+                "titulo": "Actividad editada movil",
+                "descripcion": "Detalle actualizado",
+                "fecha_actividad": "2026-04-12",
+                "hora_inicio": "10:00",
+                "hora_fin": "11:00",
+                "emoji": "✅",
+                "lugar": "Sala 3",
+                "id_categoria": "1",
+                "id_usuario": "2",
+                "realizada": "false",
+            },
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "success": True,
+        "message": "Actividad actualizada correctamente.",
+        "id_actividad": 5,
+        "titulo": "Actividad editada movil",
+    }
+    assert fake_service.last_command is not None
+    assert fake_service.last_command.actividad_id == 5
+    assert fake_service.last_command.id_categoria == "1"
+    assert fake_service.last_command.realizada is False
+
+
 def test_actividad_edit_submit_rerenders_form_when_validation_fails():
     client = get_client()
     fake_service = InvalidEditService()
@@ -163,6 +202,39 @@ def test_actividad_edit_submit_rerenders_form_when_validation_fails():
     assert fake_service.last_prepare_kwargs["field_errors"]["hora_fin"] == (
         "La hora de fin es invalida."
     )
+
+
+def test_actividad_edit_submit_returns_json_validation_error_for_mobile_client():
+    client = get_client()
+    fake_service = InvalidEditService()
+    client.app.dependency_overrides[get_current_session_result] = _valid_session_result
+    client.app.dependency_overrides[get_actividad_edit_service] = lambda: fake_service
+
+    try:
+        response = client.post(
+            "/actividades/5/editar",
+            data={
+                "titulo": "Actividad editada",
+                "descripcion": "",
+                "fecha_actividad": "2026-04-12",
+                "hora_inicio": "12:00",
+                "hora_fin": "11:00",
+                "emoji": "",
+                "lugar": "",
+                "id_categoria": "1",
+                "id_usuario": "2",
+            },
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "success": False,
+        "message": "Hay datos invalidos.",
+        "field_errors": {"hora_fin": "La hora de fin es invalida."},
+    }
 
 
 def test_actividad_edit_view_returns_403_for_forbidden_activity():
@@ -224,6 +296,34 @@ def test_actividad_edit_submit_redirects_to_login_when_session_is_invalid():
 
     assert response.status_code == 303
     assert response.headers["location"] == "/login"
+
+
+def test_actividad_edit_submit_returns_json_error_when_mobile_session_is_invalid():
+    client = get_client()
+    client.app.dependency_overrides[get_current_session_result] = _invalid_session_result
+
+    try:
+        response = client.post(
+            "/actividades/5/editar",
+            data={
+                "titulo": "Actividad",
+                "descripcion": "",
+                "fecha_actividad": "2026-04-20",
+                "hora_inicio": "09:00",
+                "hora_fin": "10:00",
+                "emoji": "",
+                "lugar": "",
+                "id_categoria": "1",
+                "id_usuario": "2",
+            },
+            headers={"Accept": "application/json"},
+        )
+    finally:
+        client.app.dependency_overrides.clear()
+
+    assert response.status_code == 401
+    assert response.json()["success"] is False
+    assert response.json()["message"] == "Sin cookie."
 
 
 def _valid_session_result() -> SesionResolutionResult:

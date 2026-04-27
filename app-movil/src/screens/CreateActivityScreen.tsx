@@ -15,6 +15,7 @@ import { listActivityCategories } from '../services/activitiesService';
 import { registerMobileSessionActivity } from '../services/authService';
 import { colors, radius, spacing } from '../styles/theme';
 import type {
+  Activity,
   ActivityCategory,
   CreateActivityPayload,
 } from '../types/activity';
@@ -22,6 +23,8 @@ import type { MobileAuthSession } from '../types/auth';
 
 type CreateActivityScreenProps = {
   authSession: MobileAuthSession | null;
+  initialActivity?: Activity;
+  mode?: 'create' | 'edit';
   onCancel: () => void;
   onCreate: (payload: CreateActivityPayload) => Promise<void>;
   onSessionExpired: () => void;
@@ -45,12 +48,15 @@ const emojiSuggestions = ['📌', '💊', '📚', '🤝', '🎉', '🏃', '🗓�
 
 export function CreateActivityScreen({
   authSession,
+  initialActivity,
+  mode = 'create',
   onCancel,
   onCreate,
   onSessionExpired,
 }: CreateActivityScreenProps) {
-  const [form, setForm] = useState<FormState>(initialForm);
-  const [realizada, setRealizada] = useState(false);
+  const isEditing = mode === 'edit';
+  const [form, setForm] = useState<FormState>(() => buildInitialForm(initialActivity));
+  const [realizada, setRealizada] = useState(initialActivity?.status === 'done');
   const [categories, setCategories] = useState<ActivityCategory[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -66,7 +72,9 @@ export function CreateActivityScreen({
       setForm((currentForm) => ({
         ...currentForm,
         id_categoria:
-          currentForm.id_categoria || String(loadedCategories[0]?.id_categoria ?? ''),
+          currentForm.id_categoria ||
+          initialActivity?.categoryId ||
+          String(loadedCategories[0]?.id_categoria ?? ''),
       }));
     } catch (error) {
       if (isMobileSessionExpiredError(error)) {
@@ -83,7 +91,7 @@ export function CreateActivityScreen({
     } finally {
       setIsLoadingCategories(false);
     }
-  }, [onSessionExpired]);
+  }, [initialActivity?.categoryId, onSessionExpired]);
 
   useEffect(() => {
     loadCategories();
@@ -107,9 +115,9 @@ export function CreateActivityScreen({
       await registerMobileSessionActivity();
       await onCreate({
         ...form,
-        id_usuario: authSession?.usuario.id_usuario
-          ? String(authSession.usuario.id_usuario)
-          : '',
+        id_usuario:
+          initialActivity?.userId ||
+          (authSession?.usuario.id_usuario ? String(authSession.usuario.id_usuario) : ''),
         realizada,
       });
     } catch (error) {
@@ -131,10 +139,14 @@ export function CreateActivityScreen({
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.kicker}>Nueva actividad</Text>
-        <Text style={styles.title}>Crear actividad de abril</Text>
+        <Text style={styles.kicker}>{isEditing ? 'Edicion' : 'Nueva actividad'}</Text>
+        <Text style={styles.title}>
+          {isEditing ? 'Editar actividad de abril' : 'Crear actividad de abril'}
+        </Text>
         <Text style={styles.subtitle}>
-          Completa los datos basicos. El backend validara permisos, fecha y horario.
+          {isEditing
+            ? 'Ajusta los datos necesarios. El backend validara permisos, fecha y horario.'
+            : 'Completa los datos basicos. El backend validara permisos, fecha y horario.'}
         </Text>
 
         <View style={styles.formCard}>
@@ -300,7 +312,7 @@ export function CreateActivityScreen({
           {isSaving ? 'Guardando...' : 'Guardar actividad'}
         </PrimaryButton>
         <PrimaryButton disabled={isSaving} onPress={onCancel} variant="secondary">
-          Volver a la lista
+          {isEditing ? 'Volver al detalle' : 'Volver a la lista'}
         </PrimaryButton>
       </View>
     </View>
@@ -309,6 +321,23 @@ export function CreateActivityScreen({
 
 function FieldLabel({ label }: { label: string }) {
   return <Text style={styles.label}>{label}</Text>;
+}
+
+function buildInitialForm(activity?: Activity): FormState {
+  if (!activity) {
+    return initialForm;
+  }
+
+  return {
+    titulo: activity.title,
+    descripcion: activity.description || '',
+    fecha_actividad: activity.date,
+    hora_inicio: activity.startTime,
+    hora_fin: activity.endTime,
+    id_categoria: activity.categoryId,
+    emoji: activity.emoji || '',
+    lugar: activity.placeValue,
+  };
 }
 
 function validateForm(form: FormState) {

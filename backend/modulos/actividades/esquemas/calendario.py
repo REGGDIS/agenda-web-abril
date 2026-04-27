@@ -16,6 +16,7 @@ class ActividadCalendarioData(BaseModel):
     hora_inicio: time
     hora_fin: time
     descripcion: str | None = None
+    id_categoria: int
     categoria_nombre: str | None = None
     emoji: str | None = None
     realizada: bool

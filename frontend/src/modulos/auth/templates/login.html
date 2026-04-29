@@ -20,7 +20,12 @@
             type="text"
             placeholder="12.345.678-5"
             autocomplete="username"
+            maxlength="12"
+            aria-describedby="rut-limit-help"
           >
+          <p id="rut-limit-help" class="login-field-help" hidden>
+            El RUT no debe superar 12 caracteres con puntos y guion.
+          </p>
           <button id="login-submit-button" type="submit">Validar ingreso</button>
         </form>
 

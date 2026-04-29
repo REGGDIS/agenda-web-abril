@@ -1376,6 +1376,13 @@ body {
   color: var(--text);
 }
 
+.login-field-help {
+  margin: -0.3rem 0 0;
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
 .login-form button {
   width: fit-content;
   padding: 0.85rem 1.1rem;

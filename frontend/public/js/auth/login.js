@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("#login-form");
+  const rutInput = document.querySelector("#rut");
+  const rutLimitHelp = document.querySelector("#rut-limit-help");
   const resultNode = document.querySelector("#login-result");
   const submitButton = document.querySelector("#login-submit-button");
   const successActions = document.querySelector("#login-success-actions");
@@ -23,6 +25,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
     successActions.hidden = false;
   };
+
+  const hideRutLimitHelp = () => {
+    if (
+      !(rutInput instanceof HTMLInputElement) ||
+      !(rutLimitHelp instanceof HTMLElement)
+    ) {
+      return;
+    }
+
+    rutLimitHelp.hidden = true;
+  };
+
+  const showRutLimitHelp = () => {
+    if (!(rutLimitHelp instanceof HTMLElement)) {
+      return;
+    }
+
+    rutLimitHelp.hidden = false;
+  };
+
+  const getRutValueAfterInsert = (insertedText) => {
+    if (!(rutInput instanceof HTMLInputElement)) {
+      return "";
+    }
+
+    const selectionStart = rutInput.selectionStart ?? rutInput.value.length;
+    const selectionEnd = rutInput.selectionEnd ?? rutInput.value.length;
+    return (
+      rutInput.value.slice(0, selectionStart) +
+      insertedText +
+      rutInput.value.slice(selectionEnd)
+    );
+  };
+
+  const showRutLimitHelpIfExceeded = (nextValue) => {
+    if (!(rutInput instanceof HTMLInputElement)) {
+      return;
+    }
+
+    if (nextValue.length > rutInput.maxLength) {
+      showRutLimitHelp();
+    } else {
+      hideRutLimitHelp();
+    }
+  };
+
+  if (rutInput instanceof HTMLInputElement) {
+    rutInput.addEventListener("beforeinput", (event) => {
+      if (!event.data) {
+        return;
+      }
+
+      showRutLimitHelpIfExceeded(getRutValueAfterInsert(event.data));
+    });
+
+    rutInput.addEventListener("paste", (event) => {
+      const pastedText = event.clipboardData?.getData("text") || "";
+      showRutLimitHelpIfExceeded(getRutValueAfterInsert(pastedText));
+    });
+
+    rutInput.addEventListener("input", () => {
+      if (rutInput.value.length < rutInput.maxLength) {
+        hideRutLimitHelp();
+      }
+    });
+    hideRutLimitHelp();
+  }
 
   const url = new URL(window.location.href);
   const consumeLoginMessage = (paramName, message, state) => {

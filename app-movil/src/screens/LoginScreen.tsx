@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -13,6 +14,8 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { loginWithRut } from '../services/authService';
 import { colors, radius, spacing } from '../styles/theme';
 import type { MobileAuthSession } from '../types/auth';
+
+const agendaAbrilLogo = require('../../assets/branding/agenda-abril-logo.png');
 
 type LoginScreenProps = {
   noticeMessage?: string;
@@ -56,12 +59,17 @@ export function LoginScreen({
       >
         <View style={styles.brandBlock}>
           <View style={styles.logoMark}>
-            <Text style={styles.logoText}>AA</Text>
+            <Image
+              accessibilityLabel="Logo de Agenda Abril"
+              resizeMode="contain"
+              source={agendaAbrilLogo}
+              style={styles.logoImage}
+            />
           </View>
-          <Text style={styles.kicker}>Agenda Abril Movil</Text>
+          <Text style={styles.kicker}>AGENDA ABRIL MÓVIL</Text>
           <Text style={styles.title}>Ingreso a Agenda Abril</Text>
           <Text style={styles.subtitle}>
-            Ingresa con tu RUT para crear una sesion real en el backend.
+            Ingresa con tu RUT para acceder a tus actividades de abril desde la app móvil.
           </Text>
         </View>
 
@@ -80,12 +88,12 @@ export function LoginScreen({
             value={rut}
           />
           <Text style={styles.helper}>
-            La app usa el backend configurado para Expo Go y carga actividades reales.
+            El sistema validará tu acceso y cargará tus actividades.
           </Text>
           {noticeMessage ? <Text style={styles.notice}>{noticeMessage}</Text> : null}
           {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
           <PrimaryButton disabled={isLoading || !rut.trim()} onPress={handleSubmit}>
-            {isLoading ? 'Validando...' : 'Validar ingreso'}
+            {isLoading ? 'Validando...' : 'Ingresar'}
           </PrimaryButton>
         </View>
       </ScrollView>
@@ -108,23 +116,23 @@ const styles = StyleSheet.create({
   },
   logoMark: {
     alignItems: 'center',
-    backgroundColor: colors.accentSoft,
-    borderColor: '#f7c7bd',
-    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    height: 56,
+    height: 76,
     justifyContent: 'center',
-    marginBottom: spacing.md,
-    width: 56,
+    marginBottom: spacing.lg,
+    padding: spacing.sm,
+    width: 76,
   },
-  logoText: {
-    color: colors.accentStrong,
-    fontSize: 18,
-    fontWeight: '800',
+  logoImage: {
+    height: '100%',
+    width: '100%',
   },
   kicker: {
     color: colors.accentStrong,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '800',
     marginBottom: spacing.xs,
     textTransform: 'uppercase',

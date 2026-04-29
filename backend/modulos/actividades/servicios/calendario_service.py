@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import calendar
+from collections import Counter
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from itertools import groupby
@@ -16,6 +17,7 @@ from backend.app.db.session import get_db
 from backend.modulos.actividades.esquemas import (
     ActividadCalendarioData,
     CalendarioAbrilData,
+    CalendarioDashboardSummary,
     CalendarioDayBlock,
     CalendarioMonthCell,
     CalendarioWeekRow,
@@ -143,6 +145,10 @@ class ActividadCalendarService:
             visible_for_all_users=query.include_all_users,
             total_actividades=len(actividades),
             total_dias_con_actividades=len(day_blocks),
+            dashboard_summary=self._build_dashboard_summary(
+                projected_activities=projected_activities,
+                next_pending_activity=next_pending_activity,
+            ),
             day_blocks=day_blocks,
             weeks=weeks,
             featured_activity=featured_activity,
@@ -197,6 +203,53 @@ class ActividadCalendarService:
         for actividad in projected_activities:
             grouped.setdefault(actividad.fecha_actividad, []).append(actividad)
         return grouped
+
+    @staticmethod
+    def _build_dashboard_summary(
+        *,
+        projected_activities: list[ActividadCalendarioData],
+        next_pending_activity: ActividadCalendarioData | None,
+    ) -> CalendarioDashboardSummary:
+        total_actividades = len(projected_activities)
+        actividades_realizadas = sum(
+            1 for actividad in projected_activities if actividad.realizada
+        )
+        actividades_pendientes = total_actividades - actividades_realizadas
+        porcentaje_avance = (
+            round((actividades_realizadas / total_actividades) * 100)
+            if total_actividades
+            else 0
+        )
+
+        category_counter = Counter(
+            actividad.categoria_nombre or "Sin categoria"
+            for actividad in projected_activities
+        )
+        categoria_principal_nombre = None
+        categoria_principal_total = 0
+        if category_counter:
+            categoria_principal_nombre, categoria_principal_total = sorted(
+                category_counter.items(),
+                key=lambda item: (-item[1], item[0]),
+            )[0]
+
+        proxima_pendiente_resumen = None
+        if next_pending_activity is not None:
+            proxima_pendiente_resumen = (
+                f"{next_pending_activity.fecha_actividad.strftime('%d/%m')} "
+                f"{next_pending_activity.hora_inicio.strftime('%H:%M')} - "
+                f"{next_pending_activity.titulo}"
+            )
+
+        return CalendarioDashboardSummary(
+            total_actividades=total_actividades,
+            actividades_pendientes=actividades_pendientes,
+            actividades_realizadas=actividades_realizadas,
+            porcentaje_avance=porcentaje_avance,
+            categoria_principal_nombre=categoria_principal_nombre,
+            categoria_principal_total=categoria_principal_total,
+            proxima_pendiente_resumen=proxima_pendiente_resumen,
+        )
 
     @staticmethod
     def _resolve_reference_year(actividades: list[Actividad]) -> int:

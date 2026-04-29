@@ -352,10 +352,158 @@ body {
   margin-bottom: 1rem;
 }
 
+.april-dashboard {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.72fr) minmax(0, 1.45fr);
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem 1.1rem;
+  border-color: var(--accent-soft-border);
+  background:
+    linear-gradient(135deg, var(--surface-elevated), var(--surface-subtle)),
+    var(--surface);
+}
+
+.april-dashboard-header {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.april-dashboard-header .eyebrow {
+  margin-bottom: 0.35rem;
+  font-size: 0.74rem;
+}
+
+.april-dashboard-header h2 {
+  margin: 0;
+  font-size: clamp(1.2rem, 1.65vw, 1.45rem);
+  line-height: 1.15;
+}
+
+.april-dashboard-scope {
+  max-width: 58ch;
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.dashboard-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.dashboard-scroll-link {
+  flex-shrink: 0;
+  min-height: 2.35rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.75rem;
+}
+
+.april-dashboard-progress {
+  grid-column: 1;
+  display: grid;
+  gap: 0.35rem;
+  align-content: center;
+  min-width: 0;
+}
+
+.progress-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.progress-copy span,
+.dashboard-metric span,
+.april-dashboard-insights span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.progress-copy strong {
+  color: var(--accent-strong);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.progress-track {
+  overflow: hidden;
+  height: 0.46rem;
+  border: 1px solid var(--accent-soft-border);
+  border-radius: 999px;
+  background: var(--surface-muted);
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+}
+
+.april-dashboard-progress p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.april-dashboard-metrics {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.dashboard-metric {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.75rem;
+  background: var(--surface-overlay);
+}
+
+.dashboard-metric strong {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 1.15rem;
+  line-height: 1.1;
+}
+
+.april-dashboard-insights {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-strong);
+}
+
+.april-dashboard-insights div {
+  min-width: 0;
+}
+
+.april-dashboard-insights strong {
+  display: block;
+  margin-top: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.88rem;
+}
+
 .next-activity-card {
   display: grid;
   gap: 1rem;
   margin-bottom: 1rem;
+  scroll-margin-top: 1rem;
   border-color: var(--accent-soft-border);
   background:
     radial-gradient(circle at top right, var(--accent-soft), transparent 32%),
@@ -587,6 +735,7 @@ body {
 }
 
 .month-calendar-card {
+  scroll-margin-top: 1rem;
   padding: 1rem;
   border: 1px solid var(--border);
   border-radius: 1.25rem;
@@ -1460,6 +1609,21 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .april-dashboard-metrics,
+  .april-dashboard-insights {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .april-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .april-dashboard-progress,
+  .april-dashboard-metrics,
+  .april-dashboard-insights {
+    grid-column: 1;
+  }
+
   .next-activity-grid,
   .featured-activity-list,
   .detail-hero,
@@ -1523,6 +1687,26 @@ body {
   }
 
   .calendar-summary-band {
+    grid-template-columns: 1fr;
+  }
+
+  .april-dashboard-header,
+  .progress-copy {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-actions,
+  .dashboard-scroll-link {
+    width: 100%;
+  }
+
+  .dashboard-actions {
+    flex-direction: column;
+  }
+
+  .april-dashboard-metrics,
+  .april-dashboard-insights {
     grid-template-columns: 1fr;
   }
 

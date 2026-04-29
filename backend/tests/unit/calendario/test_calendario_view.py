@@ -6,6 +6,7 @@ from datetime import date, datetime, time
 
 from backend.modulos.actividades.esquemas import (
     CalendarioAbrilData,
+    CalendarioDashboardSummary,
     CalendarioDayBlock,
     CalendarioWeekRow,
 )
@@ -107,6 +108,28 @@ def test_calendario_renders_logged_user_when_session_is_valid():
     assert "Proxima actividad pendiente" in response.text
     assert "Faltan 1 dia y 30 minutos." in response.text
     assert "Se selecciona la actividad pendiente futura mas cercana por fecha y hora de inicio." in response.text
+    assert "Panel de control de Abril" in response.text
+    assert "Resumen global de actividades visibles para administracion." in response.text
+    assert "Avance mensual" in response.text
+    assert 'aria-valuenow="0"' in response.text
+    assert "0 de 1" in response.text
+    assert "Total de actividades" in response.text
+    assert "Pendientes" in response.text
+    assert "Realizadas" in response.text
+    assert "Categoria principal" in response.text
+    assert "Trabajo · 1" in response.text
+    assert "10/04 09:00 - Reunion general" in response.text
+    assert 'href="#proxima-actividad"' in response.text
+    assert "Ver próxima actividad" in response.text
+    assert 'id="proxima-actividad"' in response.text
+    assert 'href="#grilla-calendario"' in response.text
+    assert 'id="grilla-calendario"' in response.text
+    assert response.text.index("Panel de control de Abril") < response.text.index(
+        'id="proxima-actividad"'
+    )
+    assert response.text.index('id="proxima-actividad"') < response.text.index(
+        'id="grilla-calendario"'
+    )
     assert "/static/assets/sonidos/proxima-actividad-alerta.wav" in response.text
     assert 'data-session-monitor-enabled="true"' in response.text
     assert 'data-session-activity-url="/sesiones/actividad"' in response.text
@@ -296,6 +319,15 @@ class _FakeActividadCalendarService:
             visible_for_all_users=True,
             total_actividades=1,
             total_dias_con_actividades=1,
+            dashboard_summary=CalendarioDashboardSummary(
+                total_actividades=1,
+                actividades_pendientes=1,
+                actividades_realizadas=0,
+                porcentaje_avance=0,
+                categoria_principal_nombre="Trabajo",
+                categoria_principal_total=1,
+                proxima_pendiente_resumen="10/04 09:00 - Reunion general",
+            ),
             featured_activity={
                 "id_actividad": 1,
                 "titulo": "Reunion general",

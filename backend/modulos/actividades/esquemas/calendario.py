@@ -51,6 +51,18 @@ class CalendarioWeekRow(BaseModel):
     cells: list[CalendarioMonthCell]
 
 
+class CalendarioDashboardSummary(BaseModel):
+    """Metricas compactas para presentar el avance visible del mes."""
+
+    total_actividades: int
+    actividades_pendientes: int
+    actividades_realizadas: int
+    porcentaje_avance: int
+    categoria_principal_nombre: str | None = None
+    categoria_principal_total: int = 0
+    proxima_pendiente_resumen: str | None = None
+
+
 class CalendarioAbrilData(BaseModel):
     """Resumen del calendario visible para abril."""
 
@@ -59,6 +71,7 @@ class CalendarioAbrilData(BaseModel):
     visible_for_all_users: bool
     total_actividades: int
     total_dias_con_actividades: int
+    dashboard_summary: CalendarioDashboardSummary
     day_blocks: list[CalendarioDayBlock]
     weeks: list[CalendarioWeekRow]
     featured_activity: ActividadCalendarioData | None = None

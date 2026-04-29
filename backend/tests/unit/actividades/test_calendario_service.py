@@ -14,6 +14,7 @@ class StubActividadRepository:
     def __init__(self) -> None:
         self.last_query: dict[str, object] | None = None
         self.return_all_done_today = False
+        self.activities = None
 
     def list_april_activities_for_calendar(
         self,
@@ -27,6 +28,9 @@ class StubActividadRepository:
             "include_all_users": include_all_users,
             "april_month": april_month,
         }
+        if self.activities is not None:
+            return self.activities
+
         first_today_done = self.return_all_done_today
         return [
             _FakeActividad(
@@ -125,6 +129,13 @@ def test_calendar_service_groups_activities_by_day():
     }
     assert result.total_actividades == 3
     assert result.total_dias_con_actividades == 2
+    assert result.dashboard_summary.total_actividades == 3
+    assert result.dashboard_summary.actividades_pendientes == 2
+    assert result.dashboard_summary.actividades_realizadas == 1
+    assert result.dashboard_summary.porcentaje_avance == 33
+    assert result.dashboard_summary.categoria_principal_nombre == "Estudio"
+    assert result.dashboard_summary.categoria_principal_total == 1
+    assert result.dashboard_summary.proxima_pendiente_resumen == "10/04 09:00 - Actividad A"
     assert result.month_label == "Abril 2026"
     assert result.weekday_labels == [
         "Lunes",
@@ -211,3 +222,24 @@ def test_calendar_service_skips_featured_activity_when_today_has_no_visible_item
     assert result.next_pending_activity_countdown_label is None
     assert result.next_pending_activity_alert_active is False
     assert result.next_pending_activity_alert_message is None
+    assert result.dashboard_summary.proxima_pendiente_resumen is None
+
+
+def test_calendar_service_dashboard_summary_handles_empty_month():
+    repository = StubActividadRepository()
+    repository.activities = []
+    service = ActividadCalendarService(
+        repository,
+        april_month=4,
+        today_provider=lambda: date(2026, 4, 10),
+        now_provider=lambda: datetime(2026, 4, 10, 8, 30),
+    )
+
+    result = service.get_calendar_data(ActividadCalendarQuery(user_id=2, role_id=2))
+
+    assert result.dashboard_summary.total_actividades == 0
+    assert result.dashboard_summary.actividades_pendientes == 0
+    assert result.dashboard_summary.actividades_realizadas == 0
+    assert result.dashboard_summary.porcentaje_avance == 0
+    assert result.dashboard_summary.categoria_principal_nombre is None
+    assert result.dashboard_summary.categoria_principal_total == 0

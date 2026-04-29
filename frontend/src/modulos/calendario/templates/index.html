@@ -45,7 +45,81 @@
   </section>
   {% endif %}
 
-  <section class="card next-activity-card {{ 'alert-active' if calendar_data.next_pending_activity_alert_active else '' }}">
+  {% set dashboard = calendar_data.dashboard_summary %}
+  <section class="card april-dashboard" aria-labelledby="april-dashboard-title">
+    <div class="april-dashboard-header">
+      <div>
+        <p class="eyebrow">Panel de control</p>
+        <h2 id="april-dashboard-title">Panel de control de Abril</h2>
+        <p class="april-dashboard-scope">
+          {{ "Resumen global de actividades visibles para administracion." if calendar_data.visible_for_all_users else "Resumen de tus actividades visibles en abril." }}
+        </p>
+      </div>
+      <div class="dashboard-actions">
+        <a href="#proxima-actividad" class="secondary-action dashboard-scroll-link">Ver próxima actividad</a>
+        <a href="#grilla-calendario" class="secondary-action dashboard-scroll-link">Ver calendario</a>
+      </div>
+    </div>
+
+    <div class="april-dashboard-progress">
+      <div class="progress-copy">
+        <span>Avance mensual</span>
+        <strong>{{ dashboard.porcentaje_avance }}%</strong>
+      </div>
+      <div
+        class="progress-track"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="{{ dashboard.porcentaje_avance }}"
+        aria-label="Avance mensual de actividades realizadas"
+      >
+        <span class="progress-fill" style="width: {{ dashboard.porcentaje_avance }}%;"></span>
+      </div>
+      <p>
+        {{ dashboard.actividades_realizadas }} de {{ dashboard.total_actividades }}
+        actividades realizadas.
+      </p>
+    </div>
+
+    <div class="april-dashboard-metrics">
+      <div class="dashboard-metric">
+        <span>Total de actividades</span>
+        <strong>{{ dashboard.total_actividades }}</strong>
+      </div>
+      <div class="dashboard-metric">
+        <span>Pendientes</span>
+        <strong>{{ dashboard.actividades_pendientes }}</strong>
+      </div>
+      <div class="dashboard-metric">
+        <span>Realizadas</span>
+        <strong>{{ dashboard.actividades_realizadas }}</strong>
+      </div>
+      <div class="dashboard-metric">
+        <span>Dias con actividades</span>
+        <strong>{{ calendar_data.total_dias_con_actividades }}</strong>
+      </div>
+    </div>
+
+    <div class="april-dashboard-insights">
+      <div>
+        <span>Categoria principal</span>
+        <strong>
+          {% if dashboard.categoria_principal_nombre %}
+          {{ dashboard.categoria_principal_nombre }} · {{ dashboard.categoria_principal_total }}
+          {% else %}
+          Sin actividades
+          {% endif %}
+        </strong>
+      </div>
+      <div>
+        <span>Proxima pendiente</span>
+        <strong>{{ dashboard.proxima_pendiente_resumen or "Sin pendientes futuras" }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section id="proxima-actividad" class="card next-activity-card {{ 'alert-active' if calendar_data.next_pending_activity_alert_active else '' }}">
     <div class="next-activity-header">
       <div>
         <p class="eyebrow">Cuenta regresiva</p>
@@ -111,68 +185,7 @@
     {% endif %}
   </section>
 
-  {% if calendar_data.featured_activity %}
-  <div class="featured-activity-overlay" id="featured-activity-modal" role="dialog" aria-modal="true" aria-labelledby="featured-activity-title">
-    <article class="featured-activity-modal card">
-      <button type="button" class="featured-close-button" data-calendar-popup-close aria-label="Cerrar actividad destacada">×</button>
-      <p class="eyebrow">Actividad destacada del dia</p>
-      <h2 id="featured-activity-title">
-        {% if calendar_data.featured_activity.emoji %}<span class="detail-emoji">{{ calendar_data.featured_activity.emoji }}</span>{% endif %}
-        {{ calendar_data.featured_activity.titulo }}
-      </h2>
-      <p class="featured-activity-copy">
-        {{ calendar_data.featured_activity_selection_rule }}
-      </p>
-      <dl class="featured-activity-list">
-        <div>
-          <dt>Fecha</dt>
-          <dd>{{ calendar_data.featured_activity.fecha_actividad.strftime("%d/%m/%Y") }}</dd>
-        </div>
-        <div>
-          <dt>Horario</dt>
-          <dd>{{ calendar_data.featured_activity.hora_inicio.strftime("%H:%M") }} - {{ calendar_data.featured_activity.hora_fin.strftime("%H:%M") }}</dd>
-        </div>
-        <div>
-          <dt>Categoria</dt>
-          <dd>{{ calendar_data.featured_activity.categoria_nombre or "Sin categoria" }}</dd>
-        </div>
-        <div>
-          <dt>Estado</dt>
-          <dd>{{ "Realizada" if calendar_data.featured_activity.realizada else "Pendiente" }}</dd>
-        </div>
-        <div>
-          <dt>Lugar</dt>
-          <dd>{{ calendar_data.featured_activity.lugar or "Sin lugar definido" }}</dd>
-        </div>
-      </dl>
-      <div class="featured-activity-actions">
-        <a href="/actividades/{{ calendar_data.featured_activity.id_actividad }}" class="primary-action">Ver detalle</a>
-        <button type="button" class="secondary-action" data-calendar-popup-close>Cerrar</button>
-      </div>
-    </article>
-  </div>
-  {% endif %}
-
-  <div class="calendar-summary-band">
-    <div class="summary-metric">
-      <span class="summary-label">Actividades</span>
-      <strong>{{ calendar_data.total_actividades }}</strong>
-    </div>
-    <div class="summary-metric">
-      <span class="summary-label">Dias activos</span>
-      <strong>{{ calendar_data.total_dias_con_actividades }}</strong>
-    </div>
-    <div class="summary-metric">
-      <span class="summary-label">Sesion</span>
-      <strong>{{ session_status }}</strong>
-    </div>
-    <div class="summary-metric">
-      <span class="summary-label">Movimiento</span>
-      <strong>{{ sesion.ultimo_movimiento.strftime("%d/%m %H:%M") }}</strong>
-    </div>
-  </div>
-
-  <section class="month-calendar-card">
+  <section class="month-calendar-card" id="grilla-calendario">
     <div class="month-calendar-shell">
       <div class="weekday-row">
         {% for weekday_label in calendar_data.weekday_labels %}
@@ -261,6 +274,48 @@
       </div>
     </div>
   </section>
+
+  {% if calendar_data.featured_activity %}
+  <div class="featured-activity-overlay" id="featured-activity-modal" role="dialog" aria-modal="true" aria-labelledby="featured-activity-title">
+    <article class="featured-activity-modal card">
+      <button type="button" class="featured-close-button" data-calendar-popup-close aria-label="Cerrar actividad destacada">×</button>
+      <p class="eyebrow">Actividad destacada del dia</p>
+      <h2 id="featured-activity-title">
+        {% if calendar_data.featured_activity.emoji %}<span class="detail-emoji">{{ calendar_data.featured_activity.emoji }}</span>{% endif %}
+        {{ calendar_data.featured_activity.titulo }}
+      </h2>
+      <p class="featured-activity-copy">
+        {{ calendar_data.featured_activity_selection_rule }}
+      </p>
+      <dl class="featured-activity-list">
+        <div>
+          <dt>Fecha</dt>
+          <dd>{{ calendar_data.featured_activity.fecha_actividad.strftime("%d/%m/%Y") }}</dd>
+        </div>
+        <div>
+          <dt>Horario</dt>
+          <dd>{{ calendar_data.featured_activity.hora_inicio.strftime("%H:%M") }} - {{ calendar_data.featured_activity.hora_fin.strftime("%H:%M") }}</dd>
+        </div>
+        <div>
+          <dt>Categoria</dt>
+          <dd>{{ calendar_data.featured_activity.categoria_nombre or "Sin categoria" }}</dd>
+        </div>
+        <div>
+          <dt>Estado</dt>
+          <dd>{{ "Realizada" if calendar_data.featured_activity.realizada else "Pendiente" }}</dd>
+        </div>
+        <div>
+          <dt>Lugar</dt>
+          <dd>{{ calendar_data.featured_activity.lugar or "Sin lugar definido" }}</dd>
+        </div>
+      </dl>
+      <div class="featured-activity-actions">
+        <a href="/actividades/{{ calendar_data.featured_activity.id_actividad }}" class="primary-action">Ver detalle</a>
+        <button type="button" class="secondary-action" data-calendar-popup-close>Cerrar</button>
+      </div>
+    </article>
+  </div>
+  {% endif %}
 
   <section class="calendar-legend">
     <div class="legend-item">
